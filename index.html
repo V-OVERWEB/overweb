@@ -484,7 +484,7 @@
   }
 </script>
 <script type="module">
-    // ========== OVERWEB // 3D NEON + 2D CANVAS MATRIX RAIN ==========
+    // ========== OVERWEB // 3D NEON + ДОЖДЬ ИЗ ЛИНИЙ (ОПТИМИЗИРОВАННЫЙ) ==========
     import * as THREE from 'three';
     import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -514,101 +514,73 @@
     };
     function hexToColor(hex) { return new THREE.Color(hex); }
 
-    // ========== ДОЖДЬ ==========
+    // ========== ДОЖДЬ ИЗ ЛИНИЙ (ОПТИМИЗИРОВАННЫЙ) ==========
     const rainCanvas = document.createElement('canvas');
     const rainCtx = rainCanvas.getContext('2d', { alpha: true });
-    const symbolsSet = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>{}[]()';
 
-    const CHAR_SIZE = 10;
-    const MAIN_SPEED = 6;
-    const TRAIL_LENGTH = (isMobile ? 15 : 20);
-    const SYMBOL_CHANGE_CHANCE = 0.1;
-    const ROW_SPACING = 1.2;
-    let COL_WIDTH = CHAR_SIZE * 2.5;
-
-    let rainCols, rainDrops;
-    let symbolGrid = [];
+    const LINE_COUNT = isMobile ? 80 : 200; // Количество линий дождя
+    const LINE_MIN_LENGTH = 50;
+    const LINE_MAX_LENGTH = 150;
+    const LINE_MIN_SPEED = 3;
+    const LINE_MAX_SPEED = 7;
+    const LINE_WIDTH = 6;
+    
+    let rainLines = [];
     let resizeTimeout = null;
-    let isResizing = false;
 
     function initRain() {
         rainCanvas.width = window.innerWidth;
         rainCanvas.height = window.innerHeight;
         
-        COL_WIDTH = CHAR_SIZE * (isMobile ? 1.5 : 0.4);
-        rainCols = Math.ceil(rainCanvas.width / COL_WIDTH) + 2;
-
-        if (!rainDrops) {
-            rainDrops = new Array(rainCols).fill(0).map(() => Math.random() * -rainCanvas.height * 2);
-        } else {
-            const oldCols = rainDrops.length;
-            const newDrops = new Array(rainCols);
-            for (let i = 0; i < rainCols; i++) {
-                const oldIndex = Math.floor(i * (oldCols / rainCols));
-                if (oldIndex < oldCols && rainDrops[oldIndex] !== undefined) {
-                    const relativePos = rainDrops[oldIndex] / rainCanvas.height;
-                    newDrops[i] = relativePos * rainCanvas.height;
-                } else {
-                    newDrops[i] = Math.random() * -rainCanvas.height * 2;
-                }
-            }
-            rainDrops = newDrops;
-        }
-
-        symbolGrid = [];
-        for (let i = 0; i < rainCols; i++) {
-            symbolGrid[i] = new Array(TRAIL_LENGTH + 1).fill(0).map(() => Math.floor(Math.random() * symbolsSet.length));
+        rainLines = [];
+        for (let i = 0; i < LINE_COUNT; i++) {
+            rainLines.push({
+                x: Math.random() * rainCanvas.width,
+                y: Math.random() * -rainCanvas.height,
+                length: LINE_MIN_LENGTH + Math.random() * (LINE_MAX_LENGTH - LINE_MIN_LENGTH),
+                speed: LINE_MIN_SPEED + Math.random() * (LINE_MAX_SPEED - LINE_MIN_SPEED),
+                opacity: 0.1 + Math.random() * 0.4
+            });
         }
     }
     initRain();
 
     function drawRain() {
         rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+        
+        // Полупрозрачный фон для эффекта затухания
         rainCtx.fillStyle = 'rgba(0, 2, 0, 0.85)';
         rainCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
-        rainCtx.font = `bold ${CHAR_SIZE}px 'Courier New', monospace`;
-        rainCtx.textBaseline = 'top';
-
-        const step = CHAR_SIZE * ROW_SPACING;
-
-        for (let col = 0; col < rainCols; col++) {
-            const headY = rainDrops[col];
-            const xPos = col * COL_WIDTH;
-
-            if (Math.random() < SYMBOL_CHANGE_CHANCE) {
-                const slot = Math.floor(Math.random() * (TRAIL_LENGTH + 1));
-                symbolGrid[col][slot] = Math.floor(Math.random() * symbolsSet.length);
-            }
-
-            for (let i = TRAIL_LENGTH; i >= 0; i--) {
-                const yPos = headY - i * step;
-                if (yPos < -CHAR_SIZE || yPos > rainCanvas.height + CHAR_SIZE) continue;
-                const sym = symbolsSet[symbolGrid[col][i]];
-                if (i === 0) {
-                    rainCtx.fillStyle = '#ffffffaa';
-                    rainCtx.fillText(sym, xPos, yPos);
-                } else if (i === 1) {
-                    rainCtx.fillStyle = '#88ff88aa';
-                    rainCtx.fillText(sym, xPos, yPos);
-                } else if (i === 2) {
-                    rainCtx.fillStyle = '#44cc44aa';
-                    rainCtx.fillText(sym, xPos, yPos);
-                } else {
-                    const opacity = Math.max(0.2, 1 - (i / TRAIL_LENGTH) * 0.9);
-                    const green = Math.floor(150 - (i / TRAIL_LENGTH) * 100);
-                    rainCtx.fillStyle = `rgba(0, ${green}, 50, ${opacity})`;
-                    rainCtx.fillText(sym, xPos, yPos);
-                }
-            }
-
-            rainDrops[col] += MAIN_SPEED;
-            if (rainDrops[col] - TRAIL_LENGTH * step > rainCanvas.height + CHAR_SIZE * 3) {
-                rainDrops[col] = -Math.random() * rainCanvas.height * 0.5 - CHAR_SIZE * 5;
-                for (let i = 0; i <= TRAIL_LENGTH; i++) {
-                    symbolGrid[col][i] = Math.floor(Math.random() * symbolsSet.length);
-                }
+        
+        for (let i = 0; i < rainLines.length; i++) {
+            const line = rainLines[i];
+            
+            // Градиент для линии (ярче снизу)
+            const gradient = rainCtx.createLinearGradient(line.x, line.y, line.x, line.y + line.length);
+            gradient.addColorStop(0, `rgba(0, 255, 0, ${line.opacity * 0.2})`);
+            gradient.addColorStop(0.3, `rgba(0, 255, 100, ${line.opacity * 0.5})`);
+            gradient.addColorStop(0.7, `rgba(0, 200, 50, ${line.opacity * 0.8})`);
+            gradient.addColorStop(1, `rgba(0, 150, 0, ${line.opacity})`);
+            
+            rainCtx.strokeStyle = gradient;
+            rainCtx.lineWidth = LINE_WIDTH;
+            rainCtx.beginPath();
+            rainCtx.moveTo(line.x, line.y);
+            rainCtx.lineTo(line.x, line.y + line.length);
+            rainCtx.stroke();
+            
+            // Движение линии
+            line.y += line.speed;
+            
+            // Сброс позиции если линия вышла за экран
+            if (line.y > rainCanvas.height + line.length) {
+                line.y = -line.length - Math.random() * 100;
+                line.x = Math.random() * rainCanvas.width;
+                line.speed = LINE_MIN_SPEED + Math.random() * (LINE_MAX_SPEED - LINE_MIN_SPEED);
+                line.opacity = 0.1 + Math.random() * 0.4;
             }
         }
+        
         rainTexture.needsUpdate = true;
     }
 
@@ -660,7 +632,12 @@
     bloomPass.radius = bloomRadius;
     composer.addPass(bloomPass);
 
-    const rainMat = new THREE.MeshBasicMaterial({ map: rainTexture, depthWrite: false, depthTest: false, transparent: true });
+    const rainMat = new THREE.MeshBasicMaterial({ 
+        map: rainTexture, 
+        depthWrite: false, 
+        depthTest: false, 
+        transparent: true 
+    });
     const rainPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), rainMat);
     rainPlane.position.set(0, 0, -1);
     rainPlane.renderOrder = -1;
@@ -685,7 +662,14 @@
 
     const ring = new THREE.Mesh(
         new THREE.TorusGeometry(3.6, 0.14 * (1.7 - globalScale), 12, 48),
-        new THREE.MeshStandardMaterial({ color: hexToColor(CONFIG.RING.COLOR), emissive: hexToColor(CONFIG.RING.EMISSIVE), emissiveIntensity: CONFIG.RING.EMISSIVE_INTENSITY, roughness: CONFIG.RING.ROUGHNESS, transparent: true, opacity: CONFIG.RING.OPACITY })
+        new THREE.MeshStandardMaterial({ 
+            color: hexToColor(CONFIG.RING.COLOR), 
+            emissive: hexToColor(CONFIG.RING.EMISSIVE), 
+            emissiveIntensity: CONFIG.RING.EMISSIVE_INTENSITY, 
+            roughness: CONFIG.RING.ROUGHNESS, 
+            transparent: true, 
+            opacity: CONFIG.RING.OPACITY 
+        })
     );
     ring.position.z = -0.1 * globalScale;
     ring.renderOrder = 1;
@@ -693,7 +677,14 @@
 
     const ringDashed = new THREE.Mesh(
         new THREE.TorusGeometry(3.0, 0.07 * (2 - globalScale), 9, 48),
-        new THREE.MeshStandardMaterial({ color: hexToColor(CONFIG.RING_DASHED.COLOR), emissive: hexToColor(CONFIG.RING_DASHED.EMISSIVE), emissiveIntensity: CONFIG.RING_DASHED.EMISSIVE_INTENSITY, roughness: CONFIG.RING_DASHED.ROUGHNESS, transparent: true, opacity: CONFIG.RING_DASHED.OPACITY })
+        new THREE.MeshStandardMaterial({ 
+            color: hexToColor(CONFIG.RING_DASHED.COLOR), 
+            emissive: hexToColor(CONFIG.RING_DASHED.EMISSIVE), 
+            emissiveIntensity: CONFIG.RING_DASHED.EMISSIVE_INTENSITY, 
+            roughness: CONFIG.RING_DASHED.ROUGHNESS, 
+            transparent: true, 
+            opacity: CONFIG.RING_DASHED.OPACITY 
+        })
     );
     ringDashed.position.z = 0.1 * globalScale;
     ringDashed.renderOrder = 1;
@@ -701,7 +692,14 @@
 
     const ringSmall = new THREE.Mesh(
         new THREE.TorusGeometry(2.45, 0.05 * (2 - globalScale), 6, 48),
-        new THREE.MeshStandardMaterial({ color: hexToColor(CONFIG.RING_SMALL.COLOR), emissive: hexToColor(CONFIG.RING_SMALL.EMISSIVE), emissiveIntensity: CONFIG.RING_SMALL.EMISSIVE_INTENSITY, roughness: CONFIG.RING_SMALL.ROUGHNESS, transparent: true, opacity: CONFIG.RING_SMALL.OPACITY })
+        new THREE.MeshStandardMaterial({ 
+            color: hexToColor(CONFIG.RING_SMALL.COLOR), 
+            emissive: hexToColor(CONFIG.RING_SMALL.EMISSIVE), 
+            emissiveIntensity: CONFIG.RING_SMALL.EMISSIVE_INTENSITY, 
+            roughness: CONFIG.RING_SMALL.ROUGHNESS, 
+            transparent: true, 
+            opacity: CONFIG.RING_SMALL.OPACITY 
+        })
     );
     ringSmall.position.z = 0.25 * globalScale;
     ringSmall.renderOrder = 1;
@@ -754,17 +752,41 @@
 
     const loader = new THREE.FontLoader();
     loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-        const textGeo = new THREE.TextGeometry('OVERWEB', { font, size: 1.05 * (2.1 - globalScale), height: 0.55, curveSegments: 3 });
+        const textGeo = new THREE.TextGeometry('OVERWEB', { 
+            font, 
+            size: 1.05 * (2.1 - globalScale), 
+            height: 0.55, 
+            curveSegments: 3 
+        });
         textGeo.center();
-        const textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: hexToColor(CONFIG.TEXT.COLOR), emissive: hexToColor(CONFIG.TEXT.EMISSIVE), emissiveIntensity: CONFIG.TEXT.EMISSIVE_INTENSITY, roughness: CONFIG.TEXT.ROUGHNESS, transparent: true, opacity: CONFIG.TEXT.OPACITY }));
+        const textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ 
+            color: hexToColor(CONFIG.TEXT.COLOR), 
+            emissive: hexToColor(CONFIG.TEXT.EMISSIVE), 
+            emissiveIntensity: CONFIG.TEXT.EMISSIVE_INTENSITY, 
+            roughness: CONFIG.TEXT.ROUGHNESS, 
+            transparent: true, 
+            opacity: CONFIG.TEXT.OPACITY 
+        }));
         textMesh.position.set(0, 0.1 * globalScale, 0.65 * globalScale);
         textMesh.scale.set(globalScale, globalScale, globalScale);
         textMesh.renderOrder = 1;
         sceneGroup.add(textMesh);
 
-        const subGeo = new THREE.TextGeometry('Frontend Developer', { font, size: 0.32 * (2 - globalScale), height: 0.01, curveSegments: 1 });
+        const subGeo = new THREE.TextGeometry('Frontend Developer', { 
+            font, 
+            size: 0.32 * (2 - globalScale), 
+            height: 0.01, 
+            curveSegments: 1 
+        });
         subGeo.center();
-        const subMesh = new THREE.Mesh(subGeo, new THREE.MeshStandardMaterial({ color: hexToColor(CONFIG.SUBTEXT.COLOR), emissive: hexToColor(CONFIG.SUBTEXT.EMISSIVE), emissiveIntensity: CONFIG.SUBTEXT.EMISSIVE_INTENSITY, roughness: CONFIG.SUBTEXT.ROUGHNESS, transparent: true, opacity: CONFIG.SUBTEXT.OPACITY }));
+        const subMesh = new THREE.Mesh(subGeo, new THREE.MeshStandardMaterial({ 
+            color: hexToColor(CONFIG.SUBTEXT.COLOR), 
+            emissive: hexToColor(CONFIG.SUBTEXT.EMISSIVE), 
+            emissiveIntensity: CONFIG.SUBTEXT.EMISSIVE_INTENSITY, 
+            roughness: CONFIG.SUBTEXT.ROUGHNESS, 
+            transparent: true, 
+            opacity: CONFIG.SUBTEXT.OPACITY 
+        }));
         subMesh.position.set(0, -4.3 * globalScale, 0.55 * globalScale);
         subMesh.scale.set(globalScale, globalScale, globalScale);
         subMesh.renderOrder = 1;
@@ -790,54 +812,23 @@
     window.addEventListener('resize', () => {
         if (resizeTimeout) clearTimeout(resizeTimeout);
 
-        isResizing = true;
-
         resizeTimeout = setTimeout(() => {
             checkMobileScale();
-
-            const oldWidth = rainCanvas.width;
-            const oldHeight = rainCanvas.height;
 
             rainCanvas.width = window.innerWidth;
             rainCanvas.height = window.innerHeight;
 
-            if (rainDrops) {
-                const scaleY = rainCanvas.height / oldHeight;
-                for (let i = 0; i < rainDrops.length; i++) {
-                    rainDrops[i] = rainDrops[i] * scaleY;
-                }
-            }
-
-            COL_WIDTH = CHAR_SIZE * (isMobile ? 1 : 0.4);
-            const newCols = Math.ceil(rainCanvas.width / COL_WIDTH) + 2;
-
-            if (newCols !== rainCols) {
-                const oldDrops = rainDrops;
-                rainCols = newCols;
-                const newDrops = new Array(rainCols);
-                const newGrid = [];
-
-                for (let i = 0; i < rainCols; i++) {
-                    const oldIndex = Math.floor(i * (oldDrops.length / rainCols));
-                    if (oldIndex < oldDrops.length && oldDrops[oldIndex] !== undefined) {
-                        newDrops[i] = oldDrops[oldIndex];
-                    } else {
-                        newDrops[i] = Math.random() * -rainCanvas.height * 2;
-                    }
-
-                    newGrid[i] = new Array(TRAIL_LENGTH + 1);
-                    if (oldIndex < symbolGrid.length && symbolGrid[oldIndex]) {
-                        for (let j = 0; j <= TRAIL_LENGTH; j++) {
-                            newGrid[i][j] = symbolGrid[oldIndex][j] || Math.floor(Math.random() * symbolsSet.length);
-                        }
-                    } else {
-                        for (let j = 0; j <= TRAIL_LENGTH; j++) {
-                            newGrid[i][j] = Math.floor(Math.random() * symbolsSet.length);
-                        }
-                    }
-                }
-                rainDrops = newDrops;
-                symbolGrid = newGrid;
+            // Пересоздаем линии дождя при ресайзе
+            rainLines = [];
+            const newLineCount = isMobile ? 80 : 200;
+            for (let i = 0; i < newLineCount; i++) {
+                rainLines.push({
+                    x: Math.random() * rainCanvas.width,
+                    y: Math.random() * -rainCanvas.height,
+                    length: LINE_MIN_LENGTH + Math.random() * (LINE_MAX_LENGTH - LINE_MIN_LENGTH),
+                    speed: LINE_MIN_SPEED + Math.random() * (LINE_MAX_SPEED - LINE_MIN_SPEED),
+                    opacity: 0.1 + Math.random() * 0.4
+                });
             }
 
             updateRainPlaneScale();
@@ -852,8 +843,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             composer.setSize(window.innerWidth, window.innerHeight);
             labelRenderer.setSize(window.innerWidth, window.innerHeight);
-
-            isResizing = false;
         }, 150);
     });
 
