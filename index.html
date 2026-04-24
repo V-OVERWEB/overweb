@@ -472,7 +472,6 @@
 
     <script src="https://cdn.usal.dev/latest"></script>
     <script src="./scripts/neon.js"></script>
-    <script src="./scripts/rain.js"></script>
     <script src="./scripts/form.js"></script>
     <script src="./scripts/header.js"></script>
 <script type="importmap">
@@ -514,80 +513,7 @@
     };
     function hexToColor(hex) { return new THREE.Color(hex); }
 
-    // ========== ДОЖДЬ ИЗ ЛИНИЙ (ОПТИМИЗИРОВАННЫЙ) ==========
-    const rainCanvas = document.createElement('canvas');
-    const rainCtx = rainCanvas.getContext('2d', { alpha: true });
-
-    const LINE_COUNT = isMobile ? 80 : 200; // Количество линий дождя
-    const LINE_MIN_LENGTH = 50;
-    const LINE_MAX_LENGTH = 150;
-    const LINE_MIN_SPEED = 3;
-    const LINE_MAX_SPEED = 7;
-    const LINE_WIDTH = 6;
-    
-    let rainLines = [];
-    let resizeTimeout = null;
-
-    function initRain() {
-        rainCanvas.width = window.innerWidth;
-        rainCanvas.height = window.innerHeight;
-        
-        rainLines = [];
-        for (let i = 0; i < LINE_COUNT; i++) {
-            rainLines.push({
-                x: Math.random() * rainCanvas.width,
-                y: Math.random() * -rainCanvas.height,
-                length: LINE_MIN_LENGTH + Math.random() * (LINE_MAX_LENGTH - LINE_MIN_LENGTH),
-                speed: LINE_MIN_SPEED + Math.random() * (LINE_MAX_SPEED - LINE_MIN_SPEED),
-                opacity: 0.1 + Math.random() * 0.4
-            });
-        }
-    }
-    initRain();
-
-    function drawRain() {
-        rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
-        
-        // Полупрозрачный фон для эффекта затухания
-        rainCtx.fillStyle = 'rgba(0, 2, 0, 0.85)';
-        rainCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
-        
-        for (let i = 0; i < rainLines.length; i++) {
-            const line = rainLines[i];
-            
-            // Градиент для линии (ярче снизу)
-            const gradient = rainCtx.createLinearGradient(line.x, line.y, line.x, line.y + line.length);
-            gradient.addColorStop(0, `rgba(0, 255, 0, ${line.opacity * 0.2})`);
-            gradient.addColorStop(0.3, `rgba(0, 255, 100, ${line.opacity * 0.5})`);
-            gradient.addColorStop(0.7, `rgba(0, 200, 50, ${line.opacity * 0.8})`);
-            gradient.addColorStop(1, `rgba(0, 150, 0, ${line.opacity})`);
-            
-            rainCtx.strokeStyle = gradient;
-            rainCtx.lineWidth = LINE_WIDTH;
-            rainCtx.beginPath();
-            rainCtx.moveTo(line.x, line.y);
-            rainCtx.lineTo(line.x, line.y + line.length);
-            rainCtx.stroke();
-            
-            // Движение линии
-            line.y += line.speed;
-            
-            // Сброс позиции если линия вышла за экран
-            if (line.y > rainCanvas.height + line.length) {
-                line.y = -line.length - Math.random() * 100;
-                line.x = Math.random() * rainCanvas.width;
-                line.speed = LINE_MIN_SPEED + Math.random() * (LINE_MAX_SPEED - LINE_MIN_SPEED);
-                line.opacity = 0.1 + Math.random() * 0.4;
-            }
-        }
-        
-        rainTexture.needsUpdate = true;
-    }
-
-    const rainTexture = new THREE.CanvasTexture(rainCanvas);
-    rainTexture.minFilter = THREE.NearestFilter;
-    rainTexture.magFilter = THREE.NearestFilter;
-    rainTexture.generateMipmaps = false;
+   
 
     // ========== СЦЕНА ==========
     const container = document.getElementById('canvas-container');
@@ -632,22 +558,6 @@
     bloomPass.radius = bloomRadius;
     composer.addPass(bloomPass);
 
-    const rainMat = new THREE.MeshBasicMaterial({ 
-        map: rainTexture, 
-        depthWrite: false, 
-        depthTest: false, 
-        transparent: true 
-    });
-    const rainPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), rainMat);
-    rainPlane.position.set(0, 0, -1);
-    rainPlane.renderOrder = -1;
-    camera.add(rainPlane);
-    scene.add(camera);
-
-    function updateRainPlaneScale() {
-        const aspect = window.innerWidth / window.innerHeight;
-        rainPlane.scale.set(aspect, 1, 1);
-    }
 
     const sceneGroup = new THREE.Group();
     scene.add(sceneGroup);
@@ -793,11 +703,9 @@
         sceneGroup.add(subMesh);
     });
 
-    updateRainPlaneScale();
-
+    
     function animate() {
         requestAnimationFrame(animate);
-        drawRain();
         const progress = Math.min(window.scrollY / window.innerHeight, 1.0);
         sceneGroup.position.y = progress * 12.5 * globalScale;
         ring.rotation.z += 0.0008;
@@ -815,23 +723,7 @@
         resizeTimeout = setTimeout(() => {
             checkMobileScale();
 
-            rainCanvas.width = window.innerWidth;
-            rainCanvas.height = window.innerHeight;
-
-            // Пересоздаем линии дождя при ресайзе
-            rainLines = [];
-            const newLineCount = isMobile ? 80 : 200;
-            for (let i = 0; i < newLineCount; i++) {
-                rainLines.push({
-                    x: Math.random() * rainCanvas.width,
-                    y: Math.random() * -rainCanvas.height,
-                    length: LINE_MIN_LENGTH + Math.random() * (LINE_MAX_LENGTH - LINE_MIN_LENGTH),
-                    speed: LINE_MIN_SPEED + Math.random() * (LINE_MAX_SPEED - LINE_MIN_SPEED),
-                    opacity: 0.1 + Math.random() * 0.4
-                });
-            }
-
-            updateRainPlaneScale();
+            
 
             let newStrength = isMobile ? 1.8 : 1.4;
             let newThreshold = isMobile ? 0.04 : 0.08;
