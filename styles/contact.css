@@ -19,7 +19,6 @@
 
 /* Форма - идентично .content__item */
 .contacts__form {
-    width: 100%;
     max-width: 550px;
     display: flex;
     flex-direction: column;

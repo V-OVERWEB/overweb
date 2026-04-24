@@ -7,6 +7,7 @@
     isolation: isolate;
     z-index: 2;
     background: transparent;
+    overflow: hidden;
 }
 @keyframes matrixPulse {
     0% { opacity: 0.3; transform: scale(1);}
@@ -33,6 +34,8 @@
     justify-content: center;
     align-items: center;
     filter: blur(1px);
+    font-family: "Righteous";
+    scale: 0.85;
 }
 .neon__name span {
     position: relative;
@@ -197,13 +200,29 @@
 }
 /* Адаптивность и медиа-запросы */
 @media (max-width: 768px) {
-    .neon__name span:nth-child(1) { font-size: 1.1em; transform: translateZ(15px) rotateY(-4deg);}
-    .neon__name span:nth-child(2) { font-size: 1.15em; transform: translateZ(20px) rotateY(-3deg);}
-    .neon__name span:nth-child(3) { font-size: 1.2em; transform: translateZ(28px) rotateY(-2deg);}
-    .neon__name span:nth-child(4) { font-size: 1.23em; transform: translateZ(34px);}
-    .neon__name span:nth-child(5) { font-size: 1.22em; transform: translateZ(28px) rotateY(2deg);}
-    .neon__name span:nth-child(6) { font-size: 1.16em; transform: translateZ(20px) rotateY(4deg);}
-    .neon__name span:nth-child(7) { font-size: 1.12em; transform: translateZ(14px) rotateY(6deg);}
+    .neon__name {
+        scale: 0.8;
+    }
+}
+@media (max-width: 620px) {
+    .neon__name {
+        scale: 0.7;
+    }
+}
+@media (max-width: 570px) {
+    .neon__name {
+        scale: 0.6;
+    }
+}
+@media (max-width: 500px) {
+    .neon__name {
+        scale: 0.55;
+    }
+}
+@media (max-width: 450px) {
+    .neon__name {
+        scale: 0.5;
+    }
 }
 
 /* ночной блюр / атмосферный свет */

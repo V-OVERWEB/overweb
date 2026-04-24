@@ -34,7 +34,6 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    width: 100%;
     gap: 2vh;
     padding: 2rem 1.5rem;
     border: 0px solid #00ff41;
@@ -276,7 +275,6 @@
 }
 /* Добавьте эти стили для формы */
 .contacts__form {
-    width: 100%;
     max-width: 100%;
     overflow-x: hidden; /* Защита от вылезания */
 }
