@@ -1,90 +1,29 @@
-const screen = document.getElementById('MatrixCanvas');
-const brush = screen.getContext('2d');
+const c=document.getElementById('MatrixCanvas'),ctx=c.getContext('2d');
+let w,h,cols,drops=[],chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#%&@!?/\\|*+=-~:;<>あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
 
-screen.width = window.innerWidth;
-screen.height = document.body.scrollHeight;
+const SPEED = 0.3;
+const LENGHT = 0.03;
+const FONT_SIZE = 14;
 
-const symbolsSet = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-const charSize = 16;
-// Уменьшаем ширину колонки для большего количества линий
-const colWidth = charSize * 0.3; // ← линии будут чаще
-const totalCols = screen.width / colWidth;
-
-const dropsPosition = new Array(Math.floor(totalCols));
-for (let i = 0; i < dropsPosition.length; i++) {
-    // Каждая колонка начинает с разной позиции
-    dropsPosition[i] = Math.random() * (screen.height / charSize + 50) - 50;
+function resize(){
+  w=innerWidth;h=innerHeight;
+  c.width=w;c.height=h;
+  cols=Math.floor(w/18);
+  drops=Array(cols).fill(1);
 }
+resize();
 
-// Дополнительные параметры для увеличения плотности
-const extraLines = 2; // Количество дополнительных слоев дождя
-const extraDrops = [];
-
-// Создаем дополнительные линии с разной скоростью
-for (let i = 0; i < extraLines; i++) {
-    extraDrops.push({
-        positions: new Array(Math.floor(totalCols)),
-        speed: 0.8 + (i * 0.2), // Разная скорость для каждого слоя
-        opacity: 0.3 + (i * 0.2)  // Разная прозрачность для глубины
-    });
-    
-    for (let j = 0; j < extraDrops[i].positions.length; j++) {
-        extraDrops[i].positions[j] = Math.random() * -screen.height / charSize;
-    }
+function rain(){
+  ctx.fillStyle=`rgba(0,0,0, ${LENGHT})`;
+  ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#0f0';
+  ctx.font=`${FONT_SIZE}px monospace`;
+  for(let i=0;i<cols;i++){
+    ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*18,drops[i]*18);
+    if(drops[i]*18>h&&Math.random()>0.98)drops[i]=0;
+    if (Math.random() > SPEED) drops[i]++;
+  }
+  requestAnimationFrame(rain);
 }
-
-function animateRain() {
-    // Основной слой (самый яркий)
-    brush.fillStyle = 'rgba(0, 0, 0, 0.085)';
-    brush.fillRect(0, 0, screen.width, screen.height);
-    
-    // Рисуем все слои дождя
-    for (let layer = 0; layer < extraDrops.length; layer++) {
-        const currentLayer = extraDrops[layer];
-        
-        // Устанавливаем прозрачность для слоя
-        brush.fillStyle = `rgba(0, 255, 0, ${currentLayer.opacity})`;
-        brush.font = `${charSize}px monospace`;
-        
-        for (let col = 0; col < currentLayer.positions.length; col++) {
-            const randomSymbol = symbolsSet[Math.floor(Math.random() * symbolsSet.length)];
-            const yPos = currentLayer.positions[col] * charSize;
-            
-            if (yPos >= 0 && yPos <= screen.height) {
-                brush.fillText(randomSymbol, col * colWidth, yPos);
-            }
-            
-            const shouldReset = currentLayer.positions[col] * charSize > screen.height + charSize;
-            
-            if (shouldReset) {
-                currentLayer.positions[col] = Math.random() * -screen.height / charSize;
-            } else {
-                currentLayer.positions[col] += currentLayer.speed;
-            }
-        }
-    }
-    
-    // Основной слой (передний план) - самый яркий и быстрый
-    brush.fillStyle = '#0F0';
-    brush.font = `${charSize}px monospace`;
-    
-    for (let col = 0; col < dropsPosition.length; col++) {
-        const randomSymbol = symbolsSet[Math.floor(Math.random() * symbolsSet.length)];
-        const yPos = dropsPosition[col] * charSize;
-        
-        if (yPos >= 0 && yPos <= screen.height) {
-            brush.fillText(randomSymbol, col * colWidth, yPos);
-        }
-        
-        const shouldReset = dropsPosition[col] * charSize > screen.height + charSize;
-        
-        if (shouldReset) {
-            dropsPosition[col] = Math.random() * -screen.height / charSize;
-        } else {
-            dropsPosition[col] += 1.2; // Основной слой быстрее
-        }
-    }
-}
-
-setInterval(animateRain, 35);
+rain();
+window.onresize=resize;

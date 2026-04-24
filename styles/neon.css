@@ -224,6 +224,16 @@
         scale: 0.5;
     }
 }
+@media (max-width: 420px) {
+    .neon__name {
+        scale: 0.45;
+    }
+}
+@media (max-width: 400px) {
+    .neon__name {
+        scale: 0.4;
+    }
+}
 
 /* ночной блюр / атмосферный свет */
 .block__first {
