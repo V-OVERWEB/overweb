@@ -71,7 +71,6 @@ body {
 .block__second, .block__reviews {
     position: relative;
     min-height: 100vh;
-    background: #030503;
     font-family: 'Share Tech Mono', 'Courier New', monospace;
     overflow: hidden;
 }

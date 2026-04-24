@@ -1,327 +1,92 @@
-// ---------- КОНФИГУРАЦИЯ ----------
-const COLUMN_COUNT = 140;               // 30 столбиков
-const MIN_LENGTH = 10;                 // минимальная длина столбца (символов)
-const MAX_LENGTH = 20;                 // максимальная длина столбца (символов)
-const SYMBOLS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+{}[]|;:,.<>?/\\~`アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ";
-// Расширенный набор символов для крутого матричного эффекта (латиница + цифры + спецсимволы + японоподобные)
+const SYMBOLS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzアイウエオカキクケコサシスセソタチツテトナニヌネノ";
+const syms = SYMBOLS.split('');
 
-// Скорость движения (пикселей в секунду?) будем использовать фиксированное смещение в requestAnimationFrame
-// Стратегия: каждая колонка будет иметь позицию top, которую мы увеличиваем со своей скоростью (px/frame)
-// Чтобы сделать разную динамику, зададим каждой колонке индивидуальную скорость (px/кадр) от 0.8 до 2.5
-// После того, как колонка уходит за нижнюю границу (top > высота контейнера), перемещаем её обратно наверх,
-// но при этом обновляем столбец (рандомные символы, длина) и позицию top = -длина_столбца * высота_символа
+const canvas = document.getElementById('MatrixRain');
+const ctx = canvas.getContext('2d');
 
-// Получаем контейнер
-const container = document.getElementById('matrixRain');
-let containerWidth = window.innerWidth;
-let containerHeight = window.innerHeight;
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-// Массив для хранения объектов колонок (DOM-элементы и метаданные)
-let columns = [];
+const FONT_SIZE = isMobile ? 13 : 15;
+const H_TARGET = isMobile ? 300 : 420;
 
-// Вычисляем размер символа в пикселях (высоту строки line-height в пикселях)
-// Чтобы точно рассчитать смещения, используем динамический расчёт через временный span.
-// Но для простоты будем получать реальную высоту символа из рендера первого созданного символа.
-// Для точности при каждом resize пересчитываем высоту символа и перераспределяем колонки?
-// Более просто: высота колонки = количество_символов * lineHeight.
-// Поскольку line-height в vw или %, но нам нужно знать точную высоту в пикселях для перемещения.
-// Получим базовый line-height (в пикселях) при помощи js, добавив калибровочный элемент.
+let W, H, cols, drops, lengths, speeds, offsets;
+let lastTime = 0;
+const FPS = isMobile ? 20 : 30;
+const FRAME_MS = 1000 / FPS;
 
-let charPixelHeight = 0;   // высота одного символа в px (line-height)
-let charPixelWidth = 0;     // примерная ширина символа для отступов между колонками
+function init() {
+  W = canvas.width = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+  canvas.style.height = H + 'px';
 
-// Функция для получения реальных размеров символа
-function measureCharacterSize() {
-    // Создаем временный элемент с такими же стилями
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.visibility = 'hidden';
-    tempDiv.style.top = '-9999px';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.fontFamily = "'Courier New', 'Fira Code', monospace";
-    tempDiv.style.fontWeight = '600';
-    tempDiv.style.fontSize = getComputedStyle(document.body).fontSize; // но у нас .char имеет 1.8vw, надо определить актуальный размер в пикселях
-    // Самый надежный: создаем .char элемент с теми же классами
-    const tempSpan = document.createElement('span');
-    tempSpan.className = 'char';
-    tempSpan.textContent = 'A';
-    tempDiv.appendChild(tempSpan);
-    document.body.appendChild(tempDiv);
-    const rect = tempSpan.getBoundingClientRect();
-    charPixelHeight = rect.height;
-    charPixelWidth = rect.width;
-    document.body.removeChild(tempDiv);
-    
-    // fallback на случай если 0 (редко)
-    if (charPixelHeight === 0) charPixelHeight = 24;
-    if (charPixelWidth === 0) charPixelWidth = 14;
+  cols = Math.floor(W / FONT_SIZE);
+
+  drops   = new Float32Array(cols);
+  lengths = new Uint8Array(cols);
+  speeds  = new Float32Array(cols);
+  offsets = new Uint16Array(cols);
+
+  ctx.font = FONT_SIZE + 'px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  for (let i = 0; i < cols; i++) {
+    drops[i]   = -(Math.random() * 40);
+    lengths[i] = 8 + Math.floor(Math.random() * 14);
+    speeds[i]  = (isMobile ? 0.4 : 0.7) + Math.random() * (isMobile ? 0.8 : 1.2);
+    offsets[i] = Math.floor(Math.random() * syms.length);
+  }
 }
 
-// Функция для генерации случайного символа из набора
-function getRandomSymbol() {
-    return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-}
+function draw(ts) {
+  requestAnimationFrame(draw);
 
-// Создаёт случайную строку-столбец (массив символов) заданной длины
-function generateRandomColumnChars(length) {
-    const chars = [];
-    for (let i = 0; i < length; i++) {
-        chars.push(getRandomSymbol());
+  const dt = ts - lastTime;
+  if (dt < FRAME_MS) return;
+  lastTime = ts - (dt % FRAME_MS);
+
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.font = FONT_SIZE + 'px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  for (let i = 0; i < cols; i++) {
+    const x = i * FONT_SIZE;
+    const headRow = Math.floor(drops[i]);
+    const len = lengths[i];
+
+    for (let j = 0; j < len; j++) {
+      const row = headRow - j;
+      const y = row * FONT_SIZE;
+      if (y < -FONT_SIZE || y > H) continue;
+
+      const ch = syms[(offsets[i] + headRow - j) % syms.length];
+
+      if (j === 0) {
+        ctx.fillStyle = '#ffffff';
+      } else {
+        const ratio = j / len;
+        const g = Math.floor(255 * (1 - ratio) * 0.9 + 20);
+        ctx.fillStyle = `rgb(0,${g},0)`;
+      }
+
+      ctx.fillText(ch, x, y);
     }
-    return chars;
-}
 
-// Обновить символы в существующем DOM-столбце (полностью перезаписать с новым содержимым и цветами)
-// Также задаёт градиент яркости: самый нижний (индекс length-1) — белый (или ярко-белый), выше — зелёные с уменьшением яркости
-// Предпоследний чуть тусклее, а верхушка почти чёрная (но не совсем черная, чтобы видны были, но очень темно-зелёные)
-// Согласно ТЗ: внизу первый (самый нижний отображаемый в столбце) — самый яркий белый, остальные зелёные и чем ближе к верху, тем темнее, пока полностью чёрными.
-// Примечание: у нас колонка рисуется сверху вниз: первый элемент в div.column — верхний символ, последний — нижний.
-// Значит, последний символ (нижний) должен быть ярко-белый, а по мере подъёма вверх темнеем до почти черного.
-function renderColumn(columnElement, charArray) {
-    // Очищаем элемент
-    columnElement.innerHTML = '';
-    const len = charArray.length;
-    for (let i = 0; i < len; i++) {
-        const span = document.createElement('span');
-        span.className = 'char';
-        span.textContent = charArray[i];
-        
-        // Вычисляем интенсивность: i=0 это верхний символ, i=len-1 это нижний символ.
-        // Нижний (последний) — белый. Верхний — чёрный (или очень тёмный).
-        let intensity;
-        if (i === len - 1) {
-            // Самый нижний символ: ослепительно белый с зеленым оттенком
-            span.style.color = '#FFFFFF';
-            span.style.textShadow = '0 0 6px #00ff00, 0 0 2px #0f0';
-        } else {
-            // Доля от 0 (верх) до 1 (низ, но низ уже белый, не считаем)
-            // Для i = len-2 будет почти бело-зеленый, для i=0 почти черный
-            const ratio = i / (len - 1);  // от 0 (верх) до 1 (низ, исключим низ)
-            // Зеленый цвет: от самого тёмного (0,20,0) до яркого зеленого (0,255,0) но без белого
-            // Но для красивого матричного эффекта: от #002200 до #00ff00
-            // Верхний (ratio=0) -> #002200  (очень тёмный, почти чёрный)
-            // Ближе к низу (ratio ≈ 0.9) -> #00cc22 или что-то яркое
-            let r = 0;
-            let g = Math.floor(40 + ratio * 215);  // от 40 до 255
-            let b = 0;
-            // Ограничим, чтобы не становился белым, только нижний особый
-            if (g > 250) g = 240; // оставляем зелёный пик, но не белый
-            // Для самого верхнего пусть будет очень тёмным (почти черный)
-            if (ratio < 0.15) {
-                g = Math.floor(15 + ratio * 30);
-            }
-            span.style.color = `rgb(${r}, ${g}, ${b})`;
-            // добавляем слабое свечение если g > 100
-            if (g > 100) {
-                span.style.textShadow = `0 0 2px rgba(0, ${g}, 0, 0.5)`;
-            } else {
-                span.style.textShadow = 'none';
-            }
-        }
-        columnElement.appendChild(span);
+    drops[i] += speeds[i] * (dt / FRAME_MS) * 0.5;
+
+    if (Math.floor(drops[i]) * FONT_SIZE > H + len * FONT_SIZE) {
+      drops[i]   = -(2 + Math.random() * 20);
+      lengths[i] = 8 + Math.floor(Math.random() * 14);
+      speeds[i]  = (isMobile ? 0.4 : 0.7) + Math.random() * (isMobile ? 0.8 : 1.2);
+      offsets[i] = Math.floor(Math.random() * syms.length);
     }
+  }
 }
 
-// Создать новую колонку полностью (элемент + данные о символическом массиве)
-function createColumn(xPosition, columnIndex) {
-    const length = Math.floor(Math.random() * (MAX_LENGTH - MIN_LENGTH + 1) + MIN_LENGTH);
-    const symbolsArray = generateRandomColumnChars(length);
-    
-    const columnDiv = document.createElement('div');
-    columnDiv.classList.add('column');
-    // Устанавливаем горизонтальную позицию
-    columnDiv.style.left = `${xPosition}px`;
-    // Рассчитываем динамическую высоту (позже уточним, но сделаем inline)
-    // Ширина минимальная
-    columnDiv.style.width = `${charPixelWidth + 6}px`; // небольшой запас
-    
-    // Отрендерим символы с градиентом яркости
-    renderColumn(columnDiv, symbolsArray);
-    
-    container.appendChild(columnDiv);
-    
-    // Начальная позиция по вертикали: случайная в пределах вьюпорта, но лучше чтобы они уже были распределены, 
-    // некоторые уже начали падать, некоторые наверху. Но по ТЗ: "JS будет их рандомно брать и перемещать над вьюпортом
-    // и запускать движение вниз до конца вьюпорта, и чтобы потом перемещались обратно наверх".
-    // Мы сделаем классическую анимацию падения: начальный top может быть отрицательным (за пределом сверху) или где-то в зоне видимости.
-    // Позиционируем случайно: от -высота_колонки до высоты_контейнера + 200
-    const columnHeightPx = length * charPixelHeight;
-    let startTop = Math.random() * (containerHeight + columnHeightPx) - columnHeightPx;
-    // чтобы не было слишком скучно, некоторые уже видны частично
-    columnDiv.style.top = `${startTop}px`;
-    
-    // Мета-информация
-    return {
-        element: columnDiv,
-        symbols: symbolsArray,
-        length: length,
-        speed: 4 + Math.random() * 8.0,   // пикселей за кадр (скорость падения)
-        top: startTop,
-        heightPx: columnHeightPx,
-        lastUpdate: performance.now()
-    };
-}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) lastTime = 0; });
 
-// Обновить символы и цвета внутри колонки, не меняя позицию (используется при возвращении наверх)
-function refreshColumnContent(columnObj) {
-    // генерируем новую длину (может меняться)
-    const newLength = Math.floor(Math.random() * (MAX_LENGTH - MIN_LENGTH + 1) + MIN_LENGTH);
-    const newSymbols = generateRandomColumnChars(newLength);
-    columnObj.symbols = newSymbols;
-    columnObj.length = newLength;
-    columnObj.heightPx = newLength * charPixelHeight;
-    // перерендерить dom
-    renderColumn(columnObj.element, newSymbols);
-    // обновить ширину? ширина может варьироваться от символов, но оставим как есть
-}
-
-// Перемещение колонки наверх после выхода за границу
-function resetColumnToTop(columnObj) {
-    // Обновляем содержимое столбца — рандомные символы, возможно новая длина
-    refreshColumnContent(columnObj);
-    // Устанавливаем позицию сверху: отрицательное значение = полностью выше вьюпорта ( - высота колонки - случайный отступ)
-    const newTop = -(columnObj.heightPx + Math.random() * 80);
-    columnObj.top = newTop;
-    columnObj.element.style.top = `${newTop}px`;
-}
-
-// Функция обновления позиций всех колонок (движение вниз)
-function updatePositions() {
-    let needUpdate = false;
-    for (let i = 0; i < columns.length; i++) {
-        const col = columns[i];
-        // перемещаем вниз на величину скорости
-        let newTop = col.top + col.speed;
-        // проверяем: если верхняя граница колонки (newTop) + высота колонки больше высоты контейнера
-        // и колонка полностью ушла за нижний край? Условие сброса: когда верхняя часть колонки ушла ниже нижней границы
-        // но также если newTop > containerHeight, то она полностью ушла, и её пора вернуть наверх.
-        if (newTop > containerHeight) {
-            resetColumnToTop(col);
-            newTop = col.top; // после сброса top обновлён
-        } else {
-            col.top = newTop;
-        }
-        // Применяем трансформацию через style.top для оптимизации
-        col.element.style.top = `${col.top}px`;
-    }
-    // запросим следующий кадр
-    requestAnimationFrame(() => updatePositions());
-}
-
-// Инициализация всех 30 колонок: рассчитать ширину контейнера, распределить их равномерно
-function initColumns() {
-    // Очищаем контейнер
-    container.innerHTML = '';
-    columns = [];
-    
-    // Пересчитываем размеры символов
-    measureCharacterSize();
-    
-    // Получаем актуальные размеры окна
-    containerWidth = window.innerWidth;
-    containerHeight = window.innerHeight;
-    
-    // Рассчитываем отступы между колонками, чтобы 30 колонок поместились с приятным интервалом
-    // Ширина символа приблизительно charPixelWidth, добавим между колонками 1.2*charPixelWidth интервала
-    const spacing = charPixelWidth * 1.6;
-    const totalWidthNeeded = COLUMN_COUNT * spacing;
-    let startX;
-    if (totalWidthNeeded < containerWidth) {
-        startX = (containerWidth - totalWidthNeeded) / 2;
-    } else {
-        startX = 10; // небольшой отступ слева
-    }
-    
-    for (let i = 0; i < COLUMN_COUNT; i++) {
-        let xPos = startX + i * spacing;
-        // гарантируем, что не вылезает за правый край
-        if (xPos + charPixelWidth > containerWidth - 5) {
-            xPos = containerWidth - charPixelWidth - 5;
-        }
-        if (xPos < 5) xPos = 5;
-        const newColumn = createColumn(xPos, i);
-        columns.push(newColumn);
-    }
-}
-
-// Обработчик изменения размера окна: пересоздаём все колонки для корректного позиционирования
-function handleResize() {
-    // пересчитываем геометрию символов
-    measureCharacterSize();
-    containerWidth = window.innerWidth;
-    containerHeight = window.innerHeight;
-    
-    // Удаляем все старые колонки
-    for (let col of columns) {
-        if (col.element && col.element.parentNode) col.element.parentNode.removeChild(col.element);
-    }
-    // Пересоздаём
-    initColumns();
-}
-
-// Дополнительная функция: чтобы немного оживить символы – время от времени можно обновлять случайный символ в каждом столбце
-// Для эффекта "мерцания" данных как в фильме. Это создаст ощущение, что символы меняются пока падают.
-// Запустим отдельный интервал, который рандомно меняет один символ в столбце (усиливает матричный эффект)
-function startRandomSymbolTwinkle() {
-    setInterval(() => {
-        if (!columns.length) return;
-        // Проходим по ~ половине колонок, меняем один-два символа в каждой не затрагивая градиент яркости?
-        // Чтобы сохранить градиент яркости согласно позиции символа сверху вниз, проще перерендерить всю колонку целиком, но сохранив текущую длину.
-        // Чтобы не нарушить визуальный строй, будем брать случайный столбец и менять у него один случайный символ на новый.
-        // Это корректно отобразит цвет, так как цвет привязан к индексу символа в массиве.
-        for (let i = 0; i < columns.length / 2; i++) {
-            const randCol = Math.floor(Math.random() * columns.length);
-            const column = columns[randCol];
-            if (column && column.symbols.length) {
-                const randIndex = Math.floor(Math.random() * column.symbols.length);
-                column.symbols[randIndex] = getRandomSymbol();
-                // Точечно обновляем DOM без полного перерендера — эффективнее, но для поддержки красивых цветов лучше перерендерить?
-                // Просто меняем текст нужного span
-                const spans = column.element.querySelectorAll('.char');
-                if (spans[randIndex]) {
-                    spans[randIndex].textContent = column.symbols[randIndex];
-                    // не меняем цвет, так как цвет уже соответствует глубине
-                }
-            }
-        }
-    }, 180);
-}
-
-// Функция для добавления начального случайного разброса top (запуск с разными позициями)
-function randomizeInitialPositions() {
-    for (let col of columns) {
-        const randomOffset = Math.random() * containerHeight - col.heightPx;
-        col.top = randomOffset;
-        col.element.style.top = `${randomOffset}px`;
-    }
-}
-
-// Запуск анимации
-function startRain() {
-    initColumns();
-    // Дополнительно раскидаем колонки по высоте, чтобы не все стартовали сверху
-    randomizeInitialPositions();
-    // Запускаем цикл обновления позиций
-    requestAnimationFrame(() => updatePositions());
-    // Эффект мерцания символов
-    startRandomSymbolTwinkle();
-}
-
-// Обработчик resize с debounce, чтобы не тормозить
-let resizeTimer;
-window.addEventListener('resize', function() {
-    if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-        handleResize();
-    }, 150);
-});
-
-// Запускаем дождь
-startRain();
-
-// Дополнительная инициализация, если вдруг контент не успел прогрузиться
-window.addEventListener('load', () => {
-    // перестрахуемся, если размеры еще не те
-    measureCharacterSize();
-    if (columns.length === 0) startRain();
-});
+init();
+requestAnimationFrame(draw);

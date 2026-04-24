@@ -9,7 +9,6 @@
 
 .about-content {
     position: relative;
-    z-index: 5;
     padding: 2rem 3rem;
     text-align: center;
     min-height: auto;
@@ -42,7 +41,8 @@
     position: relative;
     overflow: hidden;
     border-radius: 30px;
-    background: rgb(255 255 255 / 10%);
+    background: rgb(255 255 255 / 16%);
+    backdrop-filter: blur(6px);
 }
 
 /* Сканирующая полоса */

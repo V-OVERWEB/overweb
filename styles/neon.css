@@ -156,8 +156,8 @@
 }
 /* плавающее свечение колец — реалистичный блум */
 @keyframes glowRingBig {
-    0% { box-shadow: 0 0 12px 4px rgba(0, 255, 90, 0.6), inset 0 0 14px 5px rgba(0, 230, 100, 0.5); border-color: #aaffcc;}
-    100% { box-shadow: 0 0 40px 20px rgba(0, 255, 120, 0.85), inset 0 0 36px 14px rgba(70, 255, 140, 0.7); border-color: #e2ffea;}
+    0% { box-shadow: 0 0 12px 4px rgba(0, 255, 90, 0.6), inset 0 0 14px 5px rgb(0 230 100 / 34%); border-color: #aaffcc;}
+    100% { box-shadow: 0 0 40px 20px rgba(0, 255, 120, 0.85), inset 0 0 36px 14px rgb(70 255 140 / 46%); border-color: #e2ffea;}
 }
 @keyframes glowRingMedium {
     0% { box-shadow: 0 0 14px 5px rgba(0, 230, 100, 0.65), inset 0 0 18px 7px rgba(0, 220, 100, 0.55); border-color: #befad3;}
