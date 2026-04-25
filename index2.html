@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Символьный дождь</title>
+    <title>Neon Matrix Overweb</title>
     <style>
+        /* ----- RESET & BASE ----- */
         * {
             margin: 0;
             padding: 0;
@@ -12,195 +13,556 @@
         }
 
         body {
-            background: #000000;
+            background: radial-gradient(circle at center, #021a0b 0%, #000000 100%);
             min-height: 100vh;
-            overflow: hidden;
-            font-family: 'Fira Mono', 'Courier New', monospace;
-            position: relative;
+            font-family: 'Righteous', 'Courier New', monospace;
+            overflow-x: hidden;
         }
 
-        /* Контейнер для всех колонок */
-        .rain-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Каждая колонка — вертикальный список символов */
-        .column {
-            position: absolute;
+        /* блок .block__first — полноэкранный контейнер */
+        .block__first {
             display: flex;
-            flex-direction: column-reverse;
+            justify-content: center;
             align-items: center;
-            transition: transform 0s;
-            will-change: transform;
+            height: 100vh;
+            background: transparent;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ===== НЕОНОВЫЕ КОЛЬЦА + МАТРИЧНЫЕ СИМВОЛЫ ===== */
+        .neon {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* основной текст */
+        .neon__name {
+            color: #dbffe4;
+            font-size: 160px;
+            font-weight: 700;
+            font-family: "Righteous", monospace;
+            display: flex;
+            scale: 0.85;
+            justify-content: center;
+            align-items: center;
+            animation: neonFlicker 3s ease-in-out infinite;
+            z-index: 20;
+            letter-spacing: 8px;
+        }
+
+        .neon__name span {
+            text-shadow: 0px 0px 20px #9bcca7;
+            transition: all 0.2s;
+        }
+
+        /* ----- МАТРИЧНЫЕ КОЛЬЦА (новые слои с кодами) ----- */
+        .matrix-ring {
+            position: absolute;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             pointer-events: none;
-            top: -1000px; /* ВСЕ КОЛОНКИ СТАРТУЮТ НАД ВЬЮПОРТОМ */
-        }
-
-        /* Отдельный символ */
-        .char {
-            display: block;
-            text-align: center;
-            font-size: 22px;
-            font-weight: 500;
-            line-height: 1.2;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
             white-space: pre;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: rgba(50, 255, 100, 0.25);
+            text-shadow: 0 0 5px #0f0, 0 0 2px #0f0;
+            z-index: 5;
+            overflow: hidden;
         }
 
-        /* Голова (первый символ в column-reverse = нижний) — белая, непрозрачная */
-        .column .char:first-child {
-            color: #ffffff;
-            text-shadow: 0 0 8px #ffffff, 0 0 12px #88ffaa;
-            opacity: 1 !important;
+        /* вращающиеся строки кода */
+        .matrix-ring--big-code {
+            width: min(92vw, 600px);
+            height: min(92vw, 600px);
+            font-size: 14px;
+            animation: ringRotateMatrix 25s infinite linear;
+            background: repeating-radial-gradient(circle at 30% 40%, rgba(0, 30, 0, 0.2), rgba(0, 20, 0, 0.6) 80px);
+            backdrop-filter: blur(1px);
+            border: 1px solid rgba(0, 255, 100, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2), inset 0 0 30px rgba(0, 255, 0, 0.1);
         }
 
-        /* Остальные символы — зелёные, с плавающей прозрачностью (задаётся в style) */
-        .column .char:not(:first-child) {
-            color: #2eff8c;
-            text-shadow: 0 0 3px #2eff8c;
+        .matrix-ring--medium-code {
+            width: min(78vw, 500px);
+            height: min(78vw, 500px);
+            font-size: 11px;
+            animation: ringRotateMatrixRev 22s infinite linear;
+            background: radial-gradient(circle, rgba(0,20,0,0.3), rgba(0,0,0,0.7));
+            border: 1px dashed rgba(100, 255, 150, 0.5);
         }
 
-        /* Фоновый эффект */
-        body::before {
-            content: "";
+        .matrix-ring--small-code {
+            width: min(55vw, 400px);
+            height: min(55vw, 400px);
+            font-size: 9px;
+            animation: ringRotateMatrix 19s infinite linear reverse;
+            background: repeating-linear-gradient(45deg, rgba(0,40,0,0.2), rgba(0,70,0,0.2) 15px);
+            border: 1px dotted rgba(0, 255, 150, 0.6);
+        }
+
+        /* лента символов внутри колец (псевдоэлементы с кодом) */
+        .matrix-ring::before {
+            content: attr(data-code);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            text-align: center;
+            transform: translate(-50%, -50%) rotate(0deg);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #0f8b3c;
+            opacity: 0.65;
+            text-shadow: 0 0 3px #2eff7a;
+            white-space: normal;
+            word-break: break-word;
+            padding: 20px;
+            line-height: 1.5;
+            letter-spacing: 2px;
+        }
+
+        /* для более плотного эффекта кода добавляем дополнительный слой */
+        .matrix-ring--big-code::after {
+            content: "01001101 01100001 01110100 01110010 01101001 01111000";
+            position: absolute;
+            bottom: 15%;
+            left: 10%;
+            font-size: 8px;
+            color: #2eff8c44;
+            white-space: pre;
+            font-family: monospace;
+            transform: rotate(-12deg);
+        }
+
+        /* оригинальные неон-кольца (оставляем, но делаем их более прозрачными) */
+        .neon__ring {
+            position: absolute;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: pulseRing 4s infinite alternate;
+            z-index: 2;
+        }
+
+        .neon__ring--big {
+            width: min(85vw, 540px);
+            height: min(85vw, 540px);
+            border: 6px solid rgba(100, 255, 150, 0.7);
+            box-shadow: 0 0 30px 15px rgba(0, 210, 100, 0.5), 0 0 30px 15px rgba(0, 210, 100, 0.5) inset;
+            animation: ringRotate 24s infinite linear, ringFlicker 3s ease-in-out infinite;
+            background: rgba(0, 30, 10, 0.2);
+        }
+
+        .neon__ring--medium {
+            width: min(72vw, 450px);
+            height: min(72vw, 450px);
+            border: 4.5px solid rgb(180, 255, 200);
+            box-shadow: 0 0 32px 18px rgba(0, 210, 110, 0.6), 0 0 32px 18px rgba(0, 210, 110, 0.6) inset;
+            animation: ringRotateRev 20s infinite linear, ringFlicker 3.2s ease-in-out infinite;
+            background: rgba(0, 20, 0, 0.15);
+        }
+
+        .neon__ring--small {
+            width: min(45vw, 350px);
+            height: min(45vw, 350px);
+            border: 3px solid #ccffe0;
+            box-shadow: 0 0 38px 20px rgba(0, 210, 120, 0.65), 0 0 38px 20px rgba(0, 210, 120, 0.65) inset;
+            animation: ringRotate 18s infinite linear reverse, ringFlicker 2.8s ease-in-out infinite;
+            background: rgba(0, 40, 5, 0.2);
+        }
+
+        /* ===== МАТРИЧНЫЙ ДОЖДЬ (canvas) ===== */
+        .matrix-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 30% 20%, rgba(0,30,10,0.2) 0%, #000000 95%);
             pointer-events: none;
+            z-index: 1;
+            opacity: 0.35;
         }
+
+        /* Particles (существующие) доработаны под матричный стиль */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 12;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, #2eff7a, #0a6b2f);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(1px);
+            animation: float3d var(--duration, 8s) infinite ease-in-out;
+            animation-delay: var(--delay, 0s);
+            opacity: var(--opacity, 0.6);
+            width: var(--size, 4px);
+            height: var(--size, 4px);
+            box-shadow: 0 0 var(--glow, 8px) #2eff7a;
+        }
+
+        .particle--glow {
+            background: radial-gradient(circle, #00ff88, #006633);
+            filter: blur(2px);
+            box-shadow: 0 0 var(--glow, 15px) #00ffaa;
+        }
+
+        @keyframes float3d {
+            0% { transform: translate3d(0, 0, 0) scale(1); opacity: var(--opacity, 0.7);}
+            25% { transform: translate3d(calc(var(--x, 50) * 1px), calc(var(--y, -50) * 1px), calc(var(--z, 30) * 1px)) scale(1.2); opacity: 0.9;}
+            50% { transform: translate3d(calc(var(--x, 100) * 1px), calc(var(--y, 0) * 1px), calc(var(--z, -20) * 1px)) scale(0.8); opacity: 0.5;}
+            75% { transform: translate3d(calc(var(--x, 50) * 1px), calc(var(--y, 50) * 1px), calc(var(--z, 40) * 1px)) scale(1.1); opacity: 0.8;}
+            100% { transform: translate3d(0, 0, 0) scale(1); opacity: var(--opacity, 0.7);}
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; filter: blur(3px);}
+            50% { opacity: 1; filter: blur(0px);}
+        }
+
+        .particle--sparkle {
+            animation: float3d var(--duration, 10s) infinite ease-in-out, sparkle 2s infinite alternate;
+        }
+
+        /* TV effect с зелёным оттенком */
+        .tv-effect::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-radial-gradient(circle at 50% 50%, rgba(0,20,0,0.5), rgba(40,255,40,0.08) 0.00085px);
+            pointer-events: none;
+            animation: static-move 0.2s infinite;
+            mask-image: radial-gradient(circle at center, rgb(0 0 0 / 63%) 60%, transparent 95%);
+            z-index: 13;
+        }
+
+        .tv-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1c3f1a;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+            mask-image: radial-gradient(circle at center, black 60%, transparent 95%);
+            z-index: 13;
+            opacity: 0.2;
+        }
+
+        @keyframes static-move {
+            100% { background-size: 200% 200%; opacity: 1; }
+        }
+
+        /* АНИМАЦИИ колец */
+        @keyframes ringRotate {
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes ringRotateRev {
+            100% { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+        @keyframes ringRotateMatrix {
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes ringRotateMatrixRev {
+            100% { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+        @keyframes pulseRing {
+            100% { transform: translate(-50%, -50%) scale(1.02); }
+        }
+
+        @keyframes neonFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 1; }
+            90.0% { opacity: 1; }
+            90.2% { opacity: 0.05; }
+            90.45% { opacity: 0.03; }
+            90.7% { opacity: 1; }
+            91.9% { opacity: 1; }
+            92.0% { opacity: 0.05; }
+            92.2% { opacity: 0.02; }
+            92.35% { opacity: 1; }
+        }
+
+        @keyframes ringFlicker {
+            0%, 100% { opacity: 1; border-color: rgba(224, 255, 234, 0.9);}
+            50% { opacity: 0.88; border-color: rgba(231, 255, 238, 0.9);}
+            90.0% { opacity: 1; }
+            90.2% { opacity: 0.05; }
+            90.45% { opacity: 0.03; }
+            90.7% { opacity: 1; }
+            91.9% { opacity: 1; }
+            92.0% { opacity: 0.05; }
+            92.2% { opacity: 0.02; }
+            92.35% { opacity: 1; }
+        }
+
+        /* ТЕНИ БУКВ (усиленные белым свечением) */
+        .neon__name span:nth-child(1) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 21px 0px 0px #9bcca7, 19px 0px 0px #9bcca7, 14px 0px 0px #9bcca7, 0px 0px 60px rgba(255, 255, 255, 0.9), 0px 0px 90px rgba(255, 255, 255, 0.6), 0px 0px 120px rgba(255, 255, 255, 0.3); z-index: 2; }
+        .neon__name span:nth-child(2) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 16px 0px 0px #9bcca7, 10px 0px 0px #9bcca7, 4px 0px 0px #9bcca7, 0px 0px 50px rgba(255, 255, 255, 0.9), 0px 0px 80px rgba(255, 255, 255, 0.6), 0px 0px 110px rgba(255, 255, 255, 0.3); font-size: 170px; }
+        .neon__name span:nth-child(3) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 10px 0px 0px #9bcca7, 5px 0px 0px #9bcca7, 0px 0px 55px rgba(255, 255, 255, 0.9), 0px 0px 85px rgba(255, 255, 255, 0.6), 0px 0px 115px rgba(255, 255, 255, 0.3); font-size: 175px; }
+        .neon__name span:nth-child(4) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -4px 0px 0px #9bcca7, 0px 0px 45px rgba(255, 255, 255, 0.9), 0px 0px 75px rgba(255, 255, 255, 0.6), 0px 0px 105px rgba(255, 255, 255, 0.3); font-size: 180px; }
+        .neon__name span:nth-child(5) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7,-10px 0px 0px #9bcca7, -5px 0px 0px #9bcca7, 0px 0px 60px rgba(255, 255, 255, 0.9), 0px 0px 90px rgba(255, 255, 255, 0.6), 0px 0px 120px rgba(255, 255, 255, 0.3); font-size: 175px; }
+        .neon__name span:nth-child(6) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -16px 0px 0px #9bcca7, -10px 0px 0px #9bcca7, -4px 0px 0px #9bcca7, 0px 0px 50px rgba(255, 255, 255, 0.9), 0px 0px 80px rgba(255, 255, 255, 0.6), 0px 0px 110px rgba(255, 255, 255, 0.3); font-size: 170px; }
+        .neon__name span:nth-child(7) { text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -21px 0px 0px #9bcca7, -19px 0px 0px #9bcca7, -14px 0px 0px #9bcca7, 0px 0px 60px rgba(255, 255, 255, 0.9), 0px 0px 90px rgba(255, 255, 255, 0.6), 0px 0px 120px rgba(255, 255, 255, 0.3); z-index: 2; }
+
+        @media (max-width: 768px) { .neon__name { scale: 0.7; } .matrix-ring--big-code { font-size: 8px; } }
+        @media (max-width: 500px) { .neon__name { scale: 0.5; } }
     </style>
 </head>
 <body>
-<div class="rain-container">
-    <!-- РОВНО 50 КОЛОНОК, каждая со случайной длиной от 12 до 23 символов -->
-    <!-- Все колонки имеют жёстко прописанную структуру, JS только перемещает их -->
-    
-    <!-- Колонка 1 (длина 15) -->
-    <div class="column" style="left: 3%;">
-        <span class="char">K</span><span class="char" style="opacity: 0.88">ア</span><span class="char" style="opacity: 0.76">7</span><span class="char" style="opacity: 0.64">f</span><span class="char" style="opacity: 0.52">R</span><span class="char" style="opacity: 0.40">イ</span><span class="char" style="opacity: 0.32">3</span><span class="char" style="opacity: 0.24">x</span><span class="char" style="opacity: 0.20">M</span><span class="char" style="opacity: 0.16">オ</span><span class="char" style="opacity: 0.13">9</span><span class="char" style="opacity: 0.12">q</span><span class="char" style="opacity: 0.12">Y</span><span class="char" style="opacity: 0.12">2</span><span class="char" style="opacity: 0.12">ナ</span>
+<div class="block block__first">
+    <div class="neon">
+        <!-- оригинальные неон кольца -->
+        <div class="neon__ring neon__ring--big"></div>
+        <div class="neon__ring neon__ring--medium"></div>
+        <div class="neon__ring neon__ring--small"></div>
+
+        <!-- МАТРИЧНЫЕ КОЛЬЦА С БИНАРНЫМ КОДОМ И СИМВОЛАМИ -->
+        <div class="matrix-ring matrix-ring--big-code" data-code="10110 01101 11010 00111 10001 01011 11100 10101 01110 11001"></div>
+        <div class="matrix-ring matrix-ring--medium-code" data-code="&lt;MATRIX&gt; 0x7F 0x9E 0x3C || 01001001 01101110 01101001 01110100"></div>
+        <div class="matrix-ring matrix-ring--small-code" data-code="~ $#@ %^ &amp;* 0101 1010 1110 0001 1001 || ЗАГРУЗКА..."></div>
+
+        <!-- основной текст OVERWEB -->
+        <div class="neon__name"><span>O</span><span>V</span><span>E</span><span>R</span><span>W</span><span>E</span><span>B</span></div>
     </div>
-    <!-- Колонка 2 (длина 18) -->
-    <div class="column" style="left: 7%;">
-        <span class="char">Z</span><span class="char" style="opacity: 0.90">カ</span><span class="char" style="opacity: 0.80">4</span><span class="char" style="opacity: 0.70">g</span><span class="char" style="opacity: 0.60">A</span><span class="char" style="opacity: 0.52">キ</span><span class="char" style="opacity: 0.44">8</span><span class="char" style="opacity: 0.36">t</span><span class="char" style="opacity: 0.30">N</span><span class="char" style="opacity: 0.24">ク</span><span class="char" style="opacity: 0.20">5</span><span class="char" style="opacity: 0.16">e</span><span class="char" style="opacity: 0.14">B</span><span class="char" style="opacity: 0.12">ケ</span><span class="char" style="opacity: 0.12">1</span><span class="char" style="opacity: 0.12">w</span><span class="char" style="opacity: 0.12">コ</span><span class="char" style="opacity: 0.12">6</span>
-    </div>
-    <!-- Колонка 3 (длина 12) -->
-    <div class="column" style="left: 11%;">
-        <span class="char">Q</span><span class="char" style="opacity: 0.89">サ</span><span class="char" style="opacity: 0.78">2</span><span class="char" style="opacity: 0.67">d</span><span class="char" style="opacity: 0.56">L</span><span class="char" style="opacity: 0.45">シ</span><span class="char" style="opacity: 0.34">9</span><span class="char" style="opacity: 0.23">p</span><span class="char" style="opacity: 0.18">ス</span><span class="char" style="opacity: 0.14">0</span><span class="char" style="opacity: 0.12">セ</span><span class="char" style="opacity: 0.12">v</span>
-    </div>
-    <!-- Колонка 4 (длина 20) -->
-    <div class="column" style="left: 15%;">
-        <span class="char">E</span><span class="char" style="opacity: 0.92">ソ</span><span class="char" style="opacity: 0.84">3</span><span class="char" style="opacity: 0.76">h</span><span class="char" style="opacity: 0.68">X</span><span class="char" style="opacity: 0.60">タ</span><span class="char" style="opacity: 0.52">7</span><span class="char" style="opacity: 0.44">u</span><span class="char" style="opacity: 0.36">C</span><span class="char" style="opacity: 0.30">チ</span><span class="char" style="opacity: 0.24">4</span><span class="char" style="opacity: 0.20">m</span><span class="char" style="opacity: 0.16">W</span><span class="char" style="opacity: 0.14">ツ</span><span class="char" style="opacity: 0.12">6</span><span class="char" style="opacity: 0.12">テ</span><span class="char" style="opacity: 0.12">a</span><span class="char" style="opacity: 0.12">ト</span><span class="char" style="opacity: 0.12">8</span><span class="char" style="opacity: 0.12">ナ</span>
-    </div>
-    <!-- Колонка 5 (длина 14) -->
-    <div class="column" style="left: 19%;">
-        <span class="char">F</span><span class="char" style="opacity: 0.87">ニ</span><span class="char" style="opacity: 0.74">5</span><span class="char" style="opacity: 0.62">j</span><span class="char" style="opacity: 0.50">P</span><span class="char" style="opacity: 0.38">ヌ</span><span class="char" style="opacity: 0.28">1</span><span class="char" style="opacity: 0.20">k</span><span class="char" style="opacity: 0.16">ネ</span><span class="char" style="opacity: 0.13">0</span><span class="char" style="opacity: 0.12">ノ</span><span class="char" style="opacity: 0.12">G</span><span class="char" style="opacity: 0.12">b</span><span class="char" style="opacity: 0.12">アイ</span>
-    </div>
-    <!-- Колонка 6 (длина 22) -->
-    <div class="column" style="left: 23%;">
-        <span class="char">H</span><span class="char" style="opacity: 0.93">ウ</span><span class="char" style="opacity: 0.86">2</span><span class="char" style="opacity: 0.79">c</span><span class="char" style="opacity: 0.72">O</span><span class="char" style="opacity: 0.65">エ</span><span class="char" style="opacity: 0.58">9</span><span class="char" style="opacity: 0.51">s</span><span class="char" style="opacity: 0.44">R</span><span class="char" style="opacity: 0.37">オ</span><span class="char" style="opacity: 0.31">5</span><span class="char" style="opacity: 0.25">l</span><span class="char" style="opacity: 0.20">カ</span><span class="char" style="opacity: 0.16">7</span><span class="char" style="opacity: 0.14">キ</span><span class="char" style="opacity: 0.12">y</span><span class="char" style="opacity: 0.12">ク</span><span class="char" style="opacity: 0.12">3</span><span class="char" style="opacity: 0.12">ケ</span><span class="char" style="opacity: 0.12">コ</span><span class="char" style="opacity: 0.12">サ</span><span class="char" style="opacity: 0.12">シ</span>
-    </div>
-    <!-- Колонка 7 (длина 16) -->
-    <div class="column" style="left: 27%;">
-        <span class="char">J</span><span class="char" style="opacity: 0.91">ス</span><span class="char" style="opacity: 0.82">4</span><span class="char" style="opacity: 0.73">n</span><span class="char" style="opacity: 0.64">K</span><span class="char" style="opacity: 0.55">セ</span><span class="char" style="opacity: 0.46">8</span><span class="char" style="opacity: 0.37">o</span><span class="char" style="opacity: 0.30">ソ</span><span class="char" style="opacity: 0.23">1</span><span class="char" style="opacity: 0.18">タ</span><span class="char" style="opacity: 0.14">q</span><span class="char" style="opacity: 0.12">チ</span><span class="char" style="opacity: 0.12">ツ</span><span class="char" style="opacity: 0.12">テ</span><span class="char" style="opacity: 0.12">ト</span>
-    </div>
-    <!-- Колонка 8 (длина 13) -->
-    <div class="column" style="left: 31%;">
-        <span class="char">U</span><span class="char" style="opacity: 0.88">ナ</span><span class="char" style="opacity: 0.76">6</span><span class="char" style="opacity: 0.64">r</span><span class="char" style="opacity: 0.52">S</span><span class="char" style="opacity: 0.40">ニ</span><span class="char" style="opacity: 0.30">0</span><span class="char" style="opacity: 0.22">ヌ</span><span class="char" style="opacity: 0.16">ネ</span><span class="char" style="opacity: 0.13">ノ</span><span class="char" style="opacity: 0.12">A</span><span class="char" style="opacity: 0.12">t</span><span class="char" style="opacity: 0.12">B</span>
-    </div>
-    <!-- Колонка 9 (длина 19) -->
-    <div class="column" style="left: 35%;">
-        <span class="char">M</span><span class="char" style="opacity: 0.94">イ</span><span class="char" style="opacity: 0.88">7</span><span class="char" style="opacity: 0.82">f</span><span class="char" style="opacity: 0.76">V</span><span class="char" style="opacity: 0.70">ウ</span><span class="char" style="opacity: 0.64">2</span><span class="char" style="opacity: 0.58">g</span><span class="char" style="opacity: 0.52">W</span><span class="char" style="opacity: 0.46">エ</span><span class="char" style="opacity: 0.40">9</span><span class="char" style="opacity: 0.34">z</span><span class="char" style="opacity: 0.28">Y</span><span class="char" style="opacity: 0.22">オ</span><span class="char" style="opacity: 0.18">3</span><span class="char" style="opacity: 0.14">カ</span><span class="char" style="opacity: 0.12">キ</span><span class="char" style="opacity: 0.12">ク</span><span class="char" style="opacity: 0.12">5</span>
-    </div>
-    <!-- Колонка 10 (длина 21) -->
-    <div class="column" style="left: 39%;">
-        <span class="char">T</span><span class="char" style="opacity: 0.95">ケ</span><span class="char" style="opacity: 0.90">1</span><span class="char" style="opacity: 0.85">h</span><span class="char" style="opacity: 0.80">D</span><span class="char" style="opacity: 0.75">コ</span><span class="char" style="opacity: 0.70">4</span><span class="char" style="opacity: 0.65">i</span><span class="char" style="opacity: 0.60">サ</span><span class="char" style="opacity: 0.55">0</span><span class="char" style="opacity: 0.50">シ</span><span class="char" style="opacity: 0.45">ス</span><span class="char" style="opacity: 0.40">6</span><span class="char" style="opacity: 0.35">j</span><span class="char" style="opacity: 0.30">セ</span><span class="char" style="opacity: 0.25">ソ</span><span class="char" style="opacity: 0.20">8</span><span class="char" style="opacity: 0.16">タ</span><span class="char" style="opacity: 0.13">チ</span><span class="char" style="opacity: 0.12">ツ</span><span class="char" style="opacity: 0.12">テ</span>
-    </div>
-    <!-- Колонка 11 (длина 17) -->
-    <div class="column" style="left: 43%;">
-        <span class="char">L</span><span class="char" style="opacity: 0.92">ト</span><span class="char" style="opacity: 0.84">2</span><span class="char" style="opacity: 0.76">k</span><span class="char" style="opacity: 0.68">ナ</span><span class="char" style="opacity: 0.60">7</span><span class="char" style="opacity: 0.52">ニ</span><span class="char" style="opacity: 0.44">ヌ</span><span class="char" style="opacity: 0.36">5</span><span class="char" style="opacity: 0.30">ネ</span><span class="char" style="opacity: 0.24">ノ</span><span class="char" style="opacity: 0.20">3</span><span class="char" style="opacity: 0.16">ア</span><span class="char" style="opacity: 0.14">イ</span><span class="char" style="opacity: 0.12">ウ</span><span class="char" style="opacity: 0.12">エ</span><span class="char" style="opacity: 0.12">オ</span>
-    </div>
-    <!-- Колонка 12 (длина 14) -->
-    <div class="column" style="left: 47%;">
-        <span class="char">X</span><span class="char" style="opacity: 0.89">カ</span><span class="char" style="opacity: 0.78">9</span><span class="char" style="opacity: 0.67">p</span><span class="char" style="opacity: 0.56">F</span><span class="char" style="opacity: 0.45">キ</span><span class="char" style="opacity: 0.34">4</span><span class="char" style="opacity: 0.23">q</span><span class="char" style="opacity: 0.18">ク</span><span class="char" style="opacity: 0.14">ケ</span><span class="char" style="opacity: 0.12">0</span><span class="char" style="opacity: 0.12">コ</span><span class="char" style="opacity: 0.12">サ</span><span class="char" style="opacity: 0.12">シ</span>
-    </div>
-    <!-- Колонка 13 (длина 20) -->
-    <div class="column" style="left: 51%;">
-        <span class="char">W</span><span class="char" style="opacity: 0.93">ス</span><span class="char" style="opacity: 0.86">1</span><span class="char" style="opacity: 0.79">v</span><span class="char" style="opacity: 0.72">セ</span><span class="char" style="opacity: 0.65">ソ</span><span class="char" style="opacity: 0.58">6</span><span class="char" style="opacity: 0.51">タ</span><span class="char" style="opacity: 0.44">チ</span><span class="char" style="opacity: 0.37">8</span><span class="char" style="opacity: 0.31">ツ</span><span class="char" style="opacity: 0.25">テ</span><span class="char" style="opacity: 0.20">ト</span><span class="char" style="opacity: 0.16">2</span><span class="char" style="opacity: 0.14">ナ</span><span class="char" style="opacity: 0.12">ニ</span><span class="char" style="opacity: 0.12">ヌ</span><span class="char" style="opacity: 0.12">ネ</span><span class="char" style="opacity: 0.12">ノ</span><span class="char" style="opacity: 0.12">ア</span>
-    </div>
-    <!-- Колонка 14 (длина 15) -->
-    <div class="column" style="left: 55%;">
-        <span class="char">Y</span><span class="char" style="opacity: 0.90">イ</span><span class="char" style="opacity: 0.80">3</span><span class="char" style="opacity: 0.70">c</span><span class="char" style="opacity: 0.60">ウ</span><span class="char" style="opacity: 0.50">エ</span><span class="char" style="opacity: 0.40">7</span><span class="char" style="opacity: 0.32">オ</span><span class="char" style="opacity: 0.24">カ</span><span class="char" style="opacity: 0.18">キ</span><span class="char" style="opacity: 0.14">5</span><span class="char" style="opacity: 0.12">ク</span><span class="char" style="opacity: 0.12">ケ</span><span class="char" style="opacity: 0.12">コ</span><span class="char" style="opacity: 0.12">サ</span>
-    </div>
-    <!-- Колонка 15 (длина 22) -->
-    <div class="column" style="left: 59%;">
-        <span class="char">R</span><span class="char" style="opacity: 0.94">シ</span><span class="char" style="opacity: 0.88">0</span><span class="char" style="opacity: 0.82">s</span><span class="char" style="opacity: 0.76">ス</span><span class="char" style="opacity: 0.70">セ</span><span class="char" style="opacity: 0.64">9</span><span class="char" style="opacity: 0.58">ソ</span><span class="char" style="opacity: 0.52">タ</span><span class="char" style="opacity: 0.46">4</span><span class="char" style="opacity: 0.40">チ</span><span class="char" style="opacity: 0.34">ツ</span><span class="char" style="opacity: 0.28">テ</span><span class="char" style="opacity: 0.22">ト</span><span class="char" style="opacity: 0.18">ナ</span><span class="char" style="opacity: 0.14">2</span><span class="char" style="opacity: 0.12">ニ</span><span class="char" style="opacity: 0.12">ヌ</span><span class="char" style="opacity: 0.12">ネ</span><span class="char" style="opacity: 0.12">ノ</span><span class="char" style="opacity: 0.12">イ</span><span class="char" style="opacity: 0.12">ウ</span>
-    </div>
-    <!-- Колонка 16 (длина 13) -->
-    <div class="column" style="left: 63%;">
-        <span class="char">N</span><span class="char" style="opacity: 0.88">エ</span><span class="char" style="opacity: 0.76">8</span><span class="char" style="opacity: 0.64">l</span><span class="char" style="opacity: 0.52">オ</span><span class="char" style="opacity: 0.40">カ</span><span class="char" style="opacity: 0.30">1</span><span class="char" style="opacity: 0.22">キ</span><span class="char" style="opacity: 0.16">ク</span><span class="char" style="opacity: 0.13">ケ</span><span class="char" style="opacity: 0.12">6</span><span class="char" style="opacity: 0.12">コ</span><span class="char" style="opacity: 0.12">サ</span>
-    </div>
-    <!-- Колонка 17 (длина 18) -->
-    <div class="column" style="left: 67%;">
-        <span class="char">B</span><span class="char" style="opacity: 0.92">シ</span><span class="char" style="opacity: 0.84">4</span><span class="char" style="opacity: 0.76">m</span><span class="char" style="opacity: 0.68">ス</span><span class="char" style="opacity: 0.60">セ</span><span class="char" style="opacity: 0.52">7</span><span class="char" style="opacity: 0.44">x</span><span class="char" style="opacity: 0.36">ソ</span><span class="char" style="opacity: 0.30">タ</span><span class="char" style="opacity: 0.24">チ</span><span class="char" style="opacity: 0.20">0</span><span class="char" style="opacity: 0.16">ツ</span><span class="char" style="opacity: 0.14">テ</span><span class="char" style="opacity: 0.12">ト</span><span class="char" style="opacity: 0.12">ナ</span><span class="char" style="opacity: 0.12">2</span><span class="char" style="opacity: 0.12">ニ</span>
-    </div>
-    <!-- Колонка 18 (длина 23) -->
-    <div class="column" style="left: 71%;">
-        <span class="char">I</span><span class="char" style="opacity: 0.95">ヌ</span><span class="char" style="opacity: 0.90">5</span><span class="char" style="opacity: 0.85">n</span><span class="char" style="opacity: 0.80">ネ</span><span class="char" style="opacity: 0.75">ノ</span><span class="char" style="opacity: 0.70">ア</span><span class="char" style="opacity: 0.65">3</span><span class="char" style="opacity: 0.60">イ</span><span class="char" style="opacity: 0.55">ウ</span><span class="char" style="opacity: 0.50">エ</span><span class="char" style="opacity: 0.45">オ</span><span class="char" style="opacity: 0.40">8</span><span class="char" style="opacity: 0.35">カ</span><span class="char" style="opacity: 0.30">キ</span><span class="char" style="opacity: 0.25">ク</span><span class="char" style="opacity: 0.20">ケ</span><span class="char" style="opacity: 0.16">コ</span><span class="char" style="opacity: 0.13">サ</span><span class="char" style="opacity: 0.12">1</span><span class="char" style="opacity: 0.12">シ</span><span class="char" style="opacity: 0.12">ス</span><span class="char" style="opacity: 0.12">セ</span>
-    </div>
-    <!-- Колонка 19 (длина 16) -->
-    <div class="column" style="left: 75%;">
-        <span class="char">O</span><span class="char" style="opacity: 0.91">ソ</span><span class="char" style="opacity: 0.82">6</span><span class="char" style="opacity: 0.73">y</span><span class="char" style="opacity: 0.64">タ</span><span class="char" style="opacity: 0.55">チ</span><span class="char" style="opacity: 0.46">9</span><span class="char" style="opacity: 0.37">ツ</span><span class="char" style="opacity: 0.30">テ</span><span class="char" style="opacity: 0.23">0</span><span class="char" style="opacity: 0.18">ト</span><span class="char" style="opacity: 0.14">ナ</span><span class="char" style="opacity: 0.12">ニ</span><span class="char" style="opacity: 0.12">ヌ</span><span class="char" style="opacity: 0.12">ネ</span><span class="char" style="opacity: 0.12">7</span>
-    </div>
-    <!-- Колонка 20 (длина 12) -->
-    <div class="column" style="left: 79%;">
-        <span class="char">C</span><span class="char" style="opacity: 0.89">ノ</span><span class="char" style="opacity: 0.78">2</span><span class="char" style="opacity: 0.67">e</span><span class="char" style="opacity: 0.56">ア</span><span class="char" style="opacity: 0.45">イ</span><span class="char" style="opacity: 0.34">4</span><span class="char" style="opacity: 0.23">ウ</span><span class="char" style="opacity: 0.18">エ</span><span class="char" style="opacity: 0.14">オ</span><span class="char" style="opacity: 0.12">1</span><span class="char" style="opacity: 0.12">カ</span>
-    </div>
-    <!-- Колонка 21-50 (сокращённо, но все 50 на месте, оставшиеся 30 колонок прописаны, но в коде ниже добавлю компактно -->
+
+    <!-- Контейнер партиклов (звездная пыль в стиле киберпанк) -->
+    <div class="particles"></div>
+    <!-- Эффект ТВ искажения -->
+    <div class="tv-effect"></div>
 </div>
 
-<script>
-    // Минимальный JS: только перемещение колонок по вертикали
-    // Каждая колонка: телепорт наверх (без transition) -> падение вниз (с transition) -> повтор
+<!-- Canvas для МАТРИЧНОГО ДОЖДЯ (классический эффект падающих символов) -->
+<canvas id="matrixCanvas" class="matrix-canvas"></canvas>
 
-    const columns = document.querySelectorAll('.column');
+<script>
+    // ---------- 1) ГЕНЕРАЦИЯ ПАРТИКЛОВ (3D-эффект) ----------
+    const particlesContainer = document.querySelector('.particles');
+    const PARTICLE_COUNT = 150;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        const size = Math.random() * 6 + 2;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const duration = 7 + Math.random() * 15;
+        const delay = Math.random() * 10;
+        const xMove = (Math.random() - 0.5) * 180;
+        const yMove = (Math.random() - 0.5) * 180;
+        const zMove = (Math.random() - 0.5) * 90;
+        const opacity = 0.3 + Math.random() * 0.7;
+        const glow = 5 + Math.random() * 12;
+        
+        particle.style.setProperty('--size', size + 'px');
+        particle.style.setProperty('--duration', duration + 's');
+        particle.style.setProperty('--delay', delay + 's');
+        particle.style.setProperty('--x', xMove);
+        particle.style.setProperty('--y', yMove);
+        particle.style.setProperty('--z', zMove);
+        particle.style.setProperty('--opacity', opacity);
+        particle.style.setProperty('--glow', glow + 'px');
+        particle.style.left = posX + '%';
+        particle.style.top = posY + '%';
+        
+        if (Math.random() > 0.7) particle.classList.add('particle--glow');
+        if (Math.random() > 0.85) particle.classList.add('particle--sparkle');
+        
+        particlesContainer.appendChild(particle);
+    }
+
+    // ---------- 2) МАТРИЧНЫЙ ДОЖДЬ (canvas анимация) ----------
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
     
-    // Функция для запуска бесконечного цикла у одной колонки
-    function startColumnRain(column, delay = 0) {
-        // Случайная скорость падения от 1.2 до 2.5 секунд
-        const duration = 1.2 + Math.random() * 1.3;
-        
-        function fallCycle() {
-            // 1. Отключаем transition и телепортируем наверх
-            column.style.transition = 'none';
-            column.style.transform = 'translateY(-50%)';
-            column.style.top = '-40%';
-            
-            // Форсируем перерисовку
-            void column.offsetHeight;
-            
-            // 2. Включаем transition и падаем вниз
-            column.style.transition = `transform ${duration}s linear`;
-            column.style.transform = `translateY(150vh)`;
-        }
-        
-        // Стартуем с задержкой, чтобы колонки падали не одновременно
-        setTimeout(() => {
-            fallCycle();
-            // Повторяем каждые (duration + 0.1) секунд
-            setInterval(fallCycle, duration * 1000 + 100);
-        }, delay);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Символы для матрицы (расширенный набор: katakana, цифры, буквы, бинарные символы)
+    const matrixChars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789!@#$%^&*()_+[]{};:<>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01";
+    const charsArray = matrixChars.split('');
+    
+    const fontSize = 18;
+    let columns = Math.floor(width / fontSize);
+    let drops = [];
+    
+    // Инициализация капель (каждый столбец со случайной высотой)
+    for (let i = 0; i < columns; i++) {
+        drops[i] = Math.floor(Math.random() * -height);
     }
     
-    // Запускаем все 50 колонок с разными задержками
-    columns.forEach((col, idx) => {
-        const randomDelay = Math.random() * 3000;
-        startColumnRain(col, randomDelay);
+    function drawMatrix() {
+        // Полупрозрачный черный фон для создания эффекта "хвостов"
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.045)';
+        ctx.fillRect(0, 0, width, height);
+        
+        ctx.fillStyle = '#2eff7a';
+        ctx.font = fontSize + 'px "Courier New", monospace';
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = '#0f0';
+        
+        for (let i = 0; i < drops.length; i++) {
+            // Случайный символ из набора
+            const char = charsArray[Math.floor(Math.random() * charsArray.length)];
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+            
+            // Яркость ближе к верху ярче
+            if (y < height && y > 0) {
+                const brightness = Math.min(1, (y / height) * 1.5);
+                const gVal = 100 + Math.floor(155 * brightness);
+                ctx.fillStyle = `rgb(50, ${gVal}, 70)`;
+                ctx.fillText(char, x, y);
+                // Добавляем яркую каплю на вершине
+                if (drops[i] === Math.floor(drops[i]) && Math.random() > 0.975) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(char, x, y);
+                }
+            } else {
+                ctx.fillStyle = '#1a7a3a';
+                ctx.fillText(char, x, y);
+            }
+            
+            // Сдвиг капли вниз с разной скоростью
+            if (y > height && Math.random() > 0.98) {
+                drops[i] = 0;
+            }
+            drops[i] += 0.6 + Math.random() * 0.8;
+        }
+        
+        requestAnimationFrame(drawMatrix);
+    }
+    
+    drawMatrix();
+    
+    // Адаптация canvas под изменение размера окна
+    window.addEventListener('resize', () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        columns = Math.floor(width / fontSize);
+        drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * -height);
+        }
     });
+    
+    // ---------- 3) ДОПОЛНИТЕЛЬНЫЙ ЭФФЕКТ:  МАТРИЧНЫЕ "ГЛИТЧИ" НАД ТЕКСТОМ ----------
+    // Добавим случайную анимацию искажения для букв OVERWEB (имитация матричного глитча)
+    const nameSpans = document.querySelectorAll('.neon__name span');
+    function applyMatrixGlitch() {
+        setInterval(() => {
+            if (Math.random() > 0.85) {
+                const randomSpan = nameSpans[Math.floor(Math.random() * nameSpans.length)];
+                const originalText = randomSpan.innerText;
+                const glitchChar = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                randomSpan.style.transition = '0.05s';
+                randomSpan.innerText = glitchChar;
+                setTimeout(() => {
+                    randomSpan.innerText = originalText;
+                }, 70);
+            }
+            // дополнительно: эффект смещения тени
+            if (Math.random() > 0.92) {
+                const title = document.querySelector('.neon__name');
+                title.style.transform = `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)`;
+                setTimeout(() => {
+                    title.style.transform = '';
+                }, 60);
+            }
+        }, 800);
+    }
+    applyMatrixGlitch();
+    
+    // ---------- 4) МЕРЦАНИЕ ЗНАЧКОВ В МАТРИЧНЫХ КОЛЬЦАХ (динамическое обновление data-code) ----------
+    const matrixRings = document.querySelectorAll('.matrix-ring');
+    const randomCodeStrings = [
+        "01001101 01100001 01110100 01110010 01101001 01111000", 
+        "10101110 01101011 01101111 01100100 01100101", 
+        ">_ SYSTEM ONLINE _< 0xF0 0x9C 0x3A", 
+        "01101001 01101110 01101001 01110100 00100000 01101101 01100001 01110100 01110010 01101001 01111000",
+        "ЗАЩИТА ПЕРЕГРУЖЕНА", 
+        "%% 10011100 00110101 11010110 %%", 
+        "WAKE UP NEO...", 
+        "МАТРИЦА ПЕРЕЗАПУСК", 
+        "101010 111100 001111 100101"
+    ];
+    
+    function updateRingCode() {
+        matrixRings.forEach(ring => {
+            if (Math.random() > 0.7) {
+                let newCode = randomCodeStrings[Math.floor(Math.random() * randomCodeStrings.length)];
+                // добавляем случайные символы в конец или начало для разнообразия
+                if (Math.random() > 0.5) newCode += " " + Math.floor(Math.random() * 9999).toString(16);
+                ring.setAttribute('data-code', newCode);
+            }
+        });
+        setTimeout(updateRingCode, 2800 + Math.random() * 2000);
+    }
+    updateRingCode();
+    
+    // 5) добавляем несколько "бинарных искр" — маленькие элементы, парящие между колец
+    const extraGlow = document.createElement('div');
+    extraGlow.style.position = 'absolute';
+    extraGlow.style.width = '100%';
+    extraGlow.style.height = '100%';
+    extraGlow.style.top = 0;
+    extraGlow.style.left = 0;
+    extraGlow.style.pointerEvents = 'none';
+    extraGlow.style.zIndex = '15';
+    document.querySelector('.block__first').appendChild(extraGlow);
+    
+    for (let i = 0; i < 60; i++) {
+        const bit = document.createElement('div');
+        bit.innerText = Math.random() > 0.5 ? '1' : '0';
+        bit.style.position = 'absolute';
+        bit.style.fontFamily = 'monospace';
+        bit.style.fontSize = (Math.random() * 14 + 10) + 'px';
+        bit.style.color = `rgba(80, 255, 120, ${0.2 + Math.random() * 0.5})`;
+        bit.style.top = Math.random() * 100 + '%';
+        bit.style.left = Math.random() * 100 + '%';
+        bit.style.opacity = 0.5;
+        bit.style.fontWeight = 'bold';
+        bit.style.textShadow = '0 0 4px #0f0';
+        bit.style.animation = `float3d ${5 + Math.random() * 10}s infinite alternate`;
+        bit.style.setProperty('--x', (Math.random() - 0.5) * 200);
+        bit.style.setProperty('--y', (Math.random() - 0.5) * 200);
+        bit.style.setProperty('--z', (Math.random() - 0.5) * 100);
+        extraGlow.appendChild(bit);
+    }
+    
+    // маленький динамический лог на консоль 'матрица активирована' (стильно)
+    console.log("%cMATRIX NEO-OVERWEB  >>>  НЕОНОВЫЙ ДОЖДЬ АКТИВИРОВАН", "color: #2eff7a; font-size: 16px; font-family: monospace;");
 </script>
 </body>
 </html>

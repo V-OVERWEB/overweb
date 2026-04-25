@@ -17,7 +17,7 @@
 }
 
 .neon__name {
-    color: #dbffe4;
+    color: #22352775;
     font-size: 160px;
     font-weight: 700;
     font-family: "Righteous";
@@ -25,6 +25,7 @@
     scale: 0.85;
     justify-content: center;
     align-items: center;
+    animation: neonFlicker 3s ease-in-out infinite;
 }
 
 .neon__name span {
@@ -44,26 +45,26 @@
 
 .neon__ring--big {
     width: min(85vw, 540px);
-    height: min(85vw, 540px);
-    border: 4px solid rgba(100, 255, 150, 0.9);
-    box-shadow: 0 0 45px 15px rgba(0, 210, 100, 0.5);
-    animation: ringRotate 24s infinite linear;
+    height: min(76vw, 460px);
+    border: 6px solid rgba(100, 255, 150, 0.9);
+    box-shadow: 0 0 30px 15px rgba(0, 210, 100, 0.5), 0 0 30px 15px rgba(0, 210, 100, 0.5) inset;
+    animation: ringRotate 24s infinite linear, ringFlicker 3s ease-in-out infinite;
 }
 
 .neon__ring--medium {
-    width: min(72vw, 450px);
-    height: min(72vw, 450px);
-    border: 3.5px solid rgb(180, 255, 200);
-    box-shadow: 0 0 52px 18px rgba(0, 210, 110, 0.6);
-    animation: ringRotateRev 20s infinite linear;
+    width: min(97vw, 600px);
+    height: min(64vw, 450px);
+    border: 4.5px solid rgb(180, 255, 200);
+    box-shadow: 0 0 32px 18px rgba(0, 210, 110, 0.6), 0 0 32px 18px rgba(0, 210, 110, 0.6) inset;
+    animation: ringRotateRev 20s infinite linear, ringFlicker 3.2s ease-in-out infinite;
 }
 
 .neon__ring--small {
-    width: min(45vw, 350px);
-    height: min(45vw, 350px);
+    width: min(48vw, 320px);
+    height: min(62vw, 420px);
     border: 3px solid #ccffe0;
-    box-shadow: 0 0 58px 20px rgba(0, 210, 120, 0.65);
-    animation: ringRotate 18s infinite linear reverse;
+    box-shadow: 0 0 38px 20px rgba(0, 210, 120, 0.65), 0 0 38px 20px rgba(0, 210, 120, 0.65) inset;
+    animation: ringRotate 18s infinite linear reverse, ringFlicker 2.8s ease-in-out infinite;
 }
 
 /* Animations */
@@ -79,6 +80,49 @@
     100% { transform: translate(-50%, -50%) scale(1.02); }
 }
 
+/* Пульсация неона (как у лампы) + эффект моргания раз в 10 секунд */
+@keyframes neonFlicker {
+    /* Обычная пульсация */
+    0%, 100% { opacity: 1; }
+    50% { opacity: 1; }
+    
+    /* Моргание (отключение на доли секунды каждые ~10 секунд) */
+    /* Первое отключение */
+    90.0% { opacity: 1; }
+    90.2% { opacity: 0.05; }
+    90.45% { opacity: 0.03; }
+    90.7% { opacity: 1; }
+    
+    /* Второе отключение подряд (эффект скачка напряжения) */
+    91.9% { opacity: 1; }
+    92.0% { opacity: 0.05; }
+    92.2% { opacity: 0.02; }
+    92.35% { opacity: 1; }
+}
+
+/* Пульсация для колец */
+@keyframes ringFlicker {
+    0%, 100% { 
+        opacity: 1;
+        border-color: rgba(224, 255, 234, 0.9);
+    }
+    50% { 
+        opacity: 0.88;
+        border-color: rgba(231, 255, 238, 0.9);
+    }
+    
+    /* Синхронное моргание с текстом */
+    90.0% { opacity: 1; }
+    90.2% { opacity: 0.05; }
+    90.45% { opacity: 0.03; }
+    90.7% { opacity: 1; }
+    
+    91.9% { opacity: 1; }
+    92.0% { opacity: 0.05; }
+    92.2% { opacity: 0.02; }
+    92.35% { opacity: 1; }
+}
+
 /* TV effect */
 .tv-effect::before {
     content: "";
@@ -87,10 +131,10 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.3), rgba(255,255,255,0.2) 0.00085px);
+    background: repeating-radial-gradient(circle at 50% 50%, rgb(0 0 0 / 29%), rgba(255, 255, 255, 0.2) 0.00085px);
     pointer-events: none;
     animation: static-move 0.2s infinite;
-    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.486) 60%, transparent 95%);
+    mask-image: radial-gradient(circle at center, rgb(0 0 0 / 86%) 60%, transparent 95%);
 }
 
 .tv-effect::after {
@@ -100,7 +144,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.35) 0px, rgba(0,0,0,0.35) 2px, transparent 2px, transparent 4px);
+    background: #0f310f30;
     pointer-events: none;
     mix-blend-mode: multiply;
     mask-image: radial-gradient(circle at center, black 60%, transparent 95%);
@@ -143,12 +187,287 @@
     z-index: 2;
 }
 
-
 /* Responsive */
 @media (max-width: 768px) {
     .neon__name { scale: 0.7; }
 }
+@media (max-width: 590px) {
+    .neon__name { scale: 0.6; }
+}
 @media (max-width: 500px) {
     .neon__name { scale: 0.5; }
 }
+@media (max-width: 420px) {
+    .neon__name {
+        scale: 0.45;
+    }
+}
 
+/* Добавьте этот CSS к вашему существующему коду */
+
+/* Контейнер для партиклов */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 10;
+    scale: 1 0.3
+}
+
+/* Стили для частиц */
+.particle {
+    position: absolute;
+    background: radial-gradient(circle, rgba(160, 160, 160, 0.8), rgba(100, 255, 150, 0.3));
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(1px);
+    animation: float3d var(--duration, 8s) infinite ease-in-out;
+    animation-delay: var(--delay, 0s);
+    opacity: var(--opacity, 0.7);
+    width: var(--size, 4px);
+    height: var(--size, 4px);
+    box-shadow: 0 0 var(--glow, 8px) rgba(233, 233, 233, 0.6);
+    scale: 0.5, 0.2;
+}
+
+/* Блики покрупнее */
+.particle--glow {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(100, 255, 150, 0.4));
+    filter: blur(2px);
+    box-shadow: 0 0 var(--glow, 15px) rgba(100, 255, 200, 0.8);
+}
+
+/* Анимация 3D-полета */
+@keyframes float3d {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: var(--opacity, 0.7);
+    }
+    25% {
+        transform: translate3d(calc(var(--x, 50) * 1px), calc(var(--y, -50) * 1px), calc(var(--z, 30) * 1px)) scale(1.2);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate3d(calc(var(--x, 100) * 1px), calc(var(--y, 0) * 1px), calc(var(--z, -20) * 1px)) scale(0.8);
+        opacity: 0.5;
+    }
+    75% {
+        transform: translate3d(calc(var(--x, 50) * 1px), calc(var(--y, 50) * 1px), calc(var(--z, 40) * 1px)) scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: var(--opacity, 0.7);
+    }
+}
+
+/* Дополнительная анимация для разнообразия */
+@keyframes float3dReverse {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: var(--opacity, 0.6);
+    }
+    33% {
+        transform: translate3d(calc(var(--x, -60) * 1px), calc(var(--y, 40) * 1px), calc(var(--z, -30) * 1px)) scale(0.9);
+        opacity: 0.4;
+    }
+    66% {
+        transform: translate3d(calc(var(--x, -30) * 1px), calc(var(--y, -70) * 1px), calc(var(--z, 50) * 1px)) scale(1.3);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: var(--opacity, 0.6);
+    }
+}
+
+/* Мерцание пыли */
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0.3;
+        filter: blur(3px);
+    }
+    50% {
+        opacity: 1;
+        filter: blur(0px);
+        /* box-shadow: 0 0 calc(var(--glow, 8px) * 2) rgba(255, 255, 255, 0.9); */
+    }
+}
+
+/* Применяем мерцание к некоторым частицам */
+.particle--sparkle {
+    animation: float3d var(--duration, 10s) infinite ease-in-out, sparkle 2s infinite alternate;
+}
+
+/* Добавьте эти стили к вашему существующему коду */
+
+/* Дополнительные белые неоновые тени для букв */
+.neon__name span:nth-child(1) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 21px 0px 0px #9bcca7, 19px 0px 0px #9bcca7, 14px 0px 0px #9bcca7;
+    /* Дополнительные белые тени */
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 21px 0px 0px #9bcca7, 19px 0px 0px #9bcca7, 14px 0px 0px #9bcca7,
+                 0px 0px 60px rgba(255, 255, 255, 0.9),
+                 0px 0px 90px rgba(255, 255, 255, 0.6),
+                 0px 0px 120px rgba(255, 255, 255, 0.3);
+    z-index: 2;
+}
+.neon__name span:nth-child(2) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 16px 0px 0px #9bcca7, 10px 0px 0px #9bcca7, 4px 0px 0px #9bcca7;
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 16px 0px 0px #9bcca7, 10px 0px 0px #9bcca7, 4px 0px 0px #9bcca7,
+                 0px 0px 50px rgba(255, 255, 255, 0.9),
+                 0px 0px 80px rgba(255, 255, 255, 0.6),
+                 0px 0px 110px rgba(255, 255, 255, 0.3);
+    z-index: 3;
+    font-size: 170px;
+}
+.neon__name span:nth-child(3) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 10px 0px 0px #9bcca7, 5px 0px 0px #9bcca7;
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, 10px 0px 0px #9bcca7, 5px 0px 0px #9bcca7,
+                 0px 0px 55px rgba(255, 255, 255, 0.9),
+                 0px 0px 85px rgba(255, 255, 255, 0.6),
+                 0px 0px 115px rgba(255, 255, 255, 0.3);
+    z-index: 4;
+    font-size: 175px;
+}
+.neon__name span:nth-child(4) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -4px 0px 0px #9bcca7;
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -4px 0px 0px #9bcca7,
+                 0px 0px 45px rgba(255, 255, 255, 0.9),
+                 0px 0px 75px rgba(255, 255, 255, 0.6),
+                 0px 0px 105px rgba(255, 255, 255, 0.3);
+    z-index: 5;
+    font-size: 180px;
+}
+.neon__name span:nth-child(5) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7,-10px 0px 0px #9bcca7, -5px 0px 0px #9bcca7;
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7,-10px 0px 0px #9bcca7, -5px 0px 0px #9bcca7,
+                 0px 0px 60px rgba(255, 255, 255, 0.9),
+                 0px 0px 90px rgba(255, 255, 255, 0.6),
+                 0px 0px 120px rgba(255, 255, 255, 0.3);
+    z-index: 4;
+    font-size: 175px;
+}
+.neon__name span:nth-child(6) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -16px 0px 0px #9bcca7, -10px 0px 0px #9bcca7, -4px 0px 0px #9bcca7;
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -16px 0px 0px #9bcca7, -10px 0px 0px #9bcca7, -4px 0px 0px #9bcca7,
+                 0px 0px 50px rgba(255, 255, 255, 0.9),
+                 0px 0px 80px rgba(255, 255, 255, 0.6),
+                 0px 0px 110px rgba(255, 255, 255, 0.3);
+    z-index: 3;
+    font-size: 170px;
+}
+.neon__name span:nth-child(7) {
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -21px 0px 0px #9bcca7, -19px 0px 0px #9bcca7, -14px 0px 0px #9bcca7;
+    text-shadow: 0px 0px 20px #9bcca7, 0px 0px 20px #9bcca7, -21px 0px 0px #9bcca7, -19px 0px 0px #9bcca7, -14px 0px 0px #9bcca7,
+                 0px 0px 60px rgba(255, 255, 255, 0.9),
+                 0px 0px 90px rgba(255, 255, 255, 0.6),
+                 0px 0px 120px rgba(255, 255, 255, 0.3);
+    z-index: 2;
+}
+
+/* Альтернативный вариант с более плавным белым свечением (можно заменить на этот) */
+/* 
+.neon__name span {
+    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.8)) 
+            drop-shadow(0 0 50px rgba(255, 255, 255, 0.5))
+            drop-shadow(0 0 80px rgba(255, 255, 255, 0.2));
+}
+*/
+.matrix-ring {
+    position: absolute;
+    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    white-space: pre;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: rgba(50, 255, 100, 0.25);
+    text-shadow: 0 0 5px #0f0, 0 0 2px #0f0;
+    overflow: hidden;
+    z-index: 0;
+    opacity: 0.7;
+}
+/* вращающиеся строки кода */
+.matrix-ring--big-code {
+    width: min(92vw, 600px);
+    height: min(92vw, 600px);
+    font-size: 14px;
+    animation: ringRotateMatrix 25s infinite linear;
+    backdrop-filter: blur(1px);
+    border: 1px solid rgba(0, 255, 100, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2), inset 0 0 30px rgba(0, 255, 0, 0.1);
+}
+.matrix-ring--medium-code {
+    width: min(78vw, 500px);
+    height: min(78vw, 500px);
+    font-size: 11px;
+    animation: ringRotateMatrixRev 22s infinite linear;
+    border: 1px dashed rgba(100, 255, 150, 0.5);
+}
+.matrix-ring--small-code {
+    width: min(55vw, 400px);
+    height: min(55vw, 400px);
+    font-size: 9px;
+    animation: ringRotateMatrix 19s infinite linear reverse;
+    border: 1px dotted rgba(0, 255, 150, 0.6);
+}
+/* лента символов внутри колец (псевдоэлементы с кодом) */
+.matrix-ring::before {
+    content: attr(data-code);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    text-align: center;
+    transform: translate(-50%, -50%) rotate(0deg);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #0f8b3c;
+    opacity: 0.65;
+    text-shadow: 0 0 3px #2eff7a;
+    white-space: normal;
+    word-break: break-word;
+    padding: 20px;
+    line-height: 1.5;
+    letter-spacing: 2px;
+}
+/* для более плотного эффекта кода добавляем дополнительный слой */
+.matrix-ring--big-code::after {
+    content: "01001101 01100001 01110100 01110010 01101001 01111000";
+    position: absolute;
+    bottom: 15%;
+    left: 10%;
+    font-size: 8px;
+    color: #2eff8c44;
+    white-space: pre;
+    font-family: monospace;
+    transform: rotate(-12deg);
+}
+
+
+/* АНИМАЦИИ колец */
+@keyframes ringRotate {
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes ringRotateRev {
+    100% { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+@keyframes ringRotateMatrix {
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes ringRotateMatrixRev {
+    100% { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+@keyframes pulseRing {
+    100% { transform: translate(-50%, -50%) scale(1.02); }
+}

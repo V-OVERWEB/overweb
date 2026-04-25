@@ -36,3 +36,9 @@
     color: #2eff8c;
    
 }
+/* Responsive */
+@media (max-width: 768px) {
+    .char {
+        font-size: 14px;
+    }
+}
