@@ -28,7 +28,6 @@
 /* Голова (первый символ в column-reverse = нижний) — белая, непрозрачная */
 .column .char:first-child {
     color: #ffffff;
-    text-shadow: 0 0 8px #ffffff, 0 0 12px #88ffaa;
     opacity: 1 !important;
 }
 /* Остальные символы — зелёные, с плавающей прозрачностью (задаётся в style) */
