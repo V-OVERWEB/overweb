@@ -2,8 +2,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 90vh;
+    height: 100vh;
     background: transparent;
+}
+canvas {
+    top: 0;
+    position: absolute;
 }
 
 .neon {
@@ -40,6 +44,7 @@
     justify-content: center;
     align-items: center;
     animation: neonFlicker 3s ease-in-out infinite;
+    display: none; 
     /* filter: blur(1px); */
     /* filter: drop-shadow(0px 0px 116px var(--shadow-color)); */
 
@@ -197,12 +202,6 @@
 /* Responsive */
 @media (max-width: 768px) {
     .neon__name { scale: 0.7; }
-    .neon__name--desktop {
-        display: none;
-    }
-    .neon__name--mobile { 
-        display: flex;
-    }
 }
 @media (max-width: 590px) {
     .neon__name { scale: 0.6; }
