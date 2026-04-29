@@ -1,12 +1,13 @@
+* {
+  font-family: "Jost";
+}
 body {
     background: black;
     overflow-x: hidden;
+    
 }
 #MatrixCanvas {
     opacity: 0.5;
-}
-.block__first {
-    font-family: 'Share Tech Mono', monospace;
 }
 .block__second {
     display: flex;
@@ -31,7 +32,6 @@ body {
 .title-text {
   color: #c5fdc5;
   font-size: 60px;
-  font-family: monospace;
   position: relative;
   text-shadow: 0 0 10px #d4f9d4, 0 0 4px #c1f3c1, 0 0 30px #bcffbc;
   z-index: 2; /* Ensure it stays above the rain effect */
@@ -72,7 +72,6 @@ body {
 .block__second, .block__reviews {
     position: relative;
     min-height: 100vh;
-    font-family: 'Share Tech Mono', 'Courier New', monospace;
     overflow: hidden;
 }
 
@@ -138,8 +137,7 @@ body {
 }
 
 .fallback-content {
-    text-align: center;
-    font-family: monospace;
+  text-align: center;
 }
 
 .fallback-spinner {

@@ -150,7 +150,7 @@
     position: absolute;
     bottom: 8px;
     right: 8px;
-    font-family: 'Share Tech Mono', monospace;
+    
     font-size: 7px;
     color: rgba(0, 255, 65, 0);
     transition: color 0.2s ease;
@@ -184,7 +184,7 @@
 .content__item h2 {
     color: #ffffff;
     font-size: 1.15rem;
-    font-family: 'Share Tech Mono', monospace;
+    
     text-transform: uppercase;
     letter-spacing: 2px;
     border-bottom: 1px solid rgba(0, 255, 65, 0.4);
@@ -195,10 +195,10 @@
 
 .content__item p {
     color: #b8ffb8;
-    font-size: 0.9rem;
+    font-size: 16px;
     line-height: 1.5;
     text-align: center;
-    font-family: 'Share Tech Mono', monospace;
+    
 }
 
 /* Четные карточки - другой глитч */

@@ -179,7 +179,7 @@
 }
 
 .preview-text {
-    font-family: 'Share Tech Mono', monospace;
+    
     font-size: 12px;
     color: #00ff41;
     margin-top: 8px;
@@ -197,7 +197,7 @@
 .review__text h2 {
     color: #ffffff;
     font-size: 1.15rem;
-    font-family: 'Share Tech Mono', monospace;
+    
     text-transform: uppercase;
     letter-spacing: 2px;
     border-bottom: 1px solid rgba(0, 255, 65, 0.4);
@@ -209,10 +209,10 @@
 
 .review-quote {
     color: #b8ffb8;
-    font-size: 0.9rem;
+    font-size: 16px;
     line-height: 1.5;
     text-align: center;
-    font-family: 'Share Tech Mono', monospace;
+    
     margin: 0.8rem 0;
 }
 
@@ -224,10 +224,10 @@
 }
 
 .author-name {
-    font-family: 'Share Tech Mono', monospace;
+    
     font-weight: bold;
     color: #00ff41;
-    font-size: 0.85rem;
+    font-size: 15px;
     display: block;
     letter-spacing: 1px;
 }
@@ -248,7 +248,7 @@
     background: transparent;
     border: 1px solid #00ff41;
     color: #00ff41;
-    font-family: 'Share Tech Mono', monospace;
+    
     font-size: 16px;
     padding: 6px 12px;
     margin-top: 8px;
@@ -269,7 +269,7 @@
 }
 
 .btn-arrow {
-    font-size: 0.9rem;
+    font-size: 16px;
     transition: transform 0.2s ease;
 }
 
@@ -279,7 +279,7 @@
 
 .btn-code {
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 16px;
 }
 
 /* Код в углах карточки */
@@ -287,7 +287,7 @@
     position: absolute;
     bottom: 8px;
     right: 8px;
-    font-family: 'Share Tech Mono', monospace;
+    
     font-size: 7px;
     color: rgba(0, 255, 65, 0);
     transition: color 0.2s ease;
@@ -408,7 +408,7 @@
     }
     
     .review__btn {
-        font-size: 0.65rem;
+        font-size: 15px;
         padding: 5px 10px;
     }
 }

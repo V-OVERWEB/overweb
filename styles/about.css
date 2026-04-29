@@ -123,7 +123,7 @@
 .about__item h2 {
     color: #ffffff;
     font-size: 1.5rem;
-    font-family: 'Share Tech Mono', monospace;
+    
     text-transform: uppercase;
     letter-spacing: 2px;
     border-bottom: 1px solid rgba(0, 255, 65, 0.4);
@@ -153,7 +153,7 @@
 
 .timeline-year {
     display: inline-block;
-    font-family: 'Share Tech Mono', monospace;
+    
     color: #00ff41;
     font-size: 0.8rem;
     background: rgba(0, 255, 65, 0.1);
@@ -172,9 +172,9 @@
 
 .timeline-desc {
     color: #b8ffb8;
-    font-size: 0.85rem;
+    font-size: 16px;
     line-height: 1.4;
-    font-family: monospace;
+    
 }
 
 /* Стили для навыков */
@@ -186,14 +186,14 @@
 }
 
 .skill-tag {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.8rem;
     padding: 5px 12px;
     background: rgba(0, 255, 65, 0.1);
     border: 1px solid #00ff41;
     border-radius: 20px;
-    color: #00ff41;
+    color: #fff;
     transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 18px;
 }
 
 .skill-tag:hover {
@@ -218,15 +218,14 @@
 }
 
 .stat-number {
-    font-family: 'Share Tech Mono', monospace;
     font-size: 2rem;
     font-weight: bold;
-    color: #00ff41;
+    color: #ffffff;
     text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
 }
 
 .stat-label {
-    font-size: 0.8rem;
+    font-size: 16px;
     color: #88ff88;
     margin-top: 0.25rem;
 }
@@ -251,9 +250,9 @@
 
 .edu-year {
     display: inline-block;
-    font-family: 'Share Tech Mono', monospace;
+    
     color: #00ff41;
-    font-size: 0.75rem;
+    font-size: 14px;
     background: rgba(0, 255, 65, 0.1);
     padding: 2px 8px;
     border-radius: 4px;
@@ -289,7 +288,7 @@
 .form__group {
     width: 100%;
     max-width: 100%;
-    margin-bottom: 1.5rem;
+    margin-bottom: 16px;
 }
 
 /* Главное исправление - ширина инпутов */
@@ -374,11 +373,11 @@
     
     .timeline-title,
     .edu-degree {
-        font-size: 0.85rem;
+        font-size: 18px;
     }
     
     .timeline-desc,
     .edu-place {
-        font-size: 0.75rem;
+        font-size: 14px;
     }
 }
