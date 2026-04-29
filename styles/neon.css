@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 90vh;
     background: transparent;
 }
 canvas {
@@ -29,10 +29,11 @@ canvas {
 }
 
 .neon__name {
-    --threed-color: #1f4e00;
-    --border-color: #6fff31;
+    --threed-color: #1c4105;
+    --border-color: #a4f282;
+    --border-back-color: #88f471;
+    --color: #022d02;
     --border-width: 1px;
-    --color: #173517;
     /* --shadow-color: #618050; */
 
     color: var(--color);
@@ -44,7 +45,6 @@ canvas {
     justify-content: center;
     align-items: center;
     animation: neonFlicker 3s ease-in-out infinite;
-    display: none; 
     /* filter: blur(1px); */
     /* filter: drop-shadow(0px 0px 116px var(--shadow-color)); */
 
@@ -66,27 +66,28 @@ canvas {
     transform: translate(-50%, -50%);
     pointer-events: none;
     animation: pulseRing 4s infinite alternate;
+    filter: blur(1px);
 }
 
 .neon__ring--big {
-    width: min(85vw, 540px);
-    height: min(76vw, 460px);
+    width: 540px;
+    height: 460px;
     border: 6px solid #fff;
     box-shadow: 0 0 35px 30px rgb(44 159 49 / 65%),0 0 35px 30px rgb(44 159 49 / 65%) inset;
     animation: ringRotate 24s infinite linear, ringFlicker 3s ease-in-out infinite;
 }
 
 .neon__ring--medium {
-    width: min(97vw, 600px);
-    height: min(64vw, 450px);
+    width: 600px;
+    height: 450px;
     border: 4.5px solid #fff;
     box-shadow: 0 0 35px 20px rgb(44 159 49 / 65%),0 0 35px 20px rgb(44 159 49 / 65%) inset;
     animation: ringRotateRev 20s infinite linear, ringFlicker 3.2s ease-in-out infinite;
 }
 
 .neon__ring--small {
-    width: min(48vw, 320px);
-    height: min(62vw, 420px);
+    width: 320px;
+    height: 420px;
     border: 3px solid #fff;
     box-shadow: 0 0 35px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
     animation: ringRotate 18s infinite linear reverse, ringFlicker 2.8s ease-in-out infinite;
@@ -94,17 +95,17 @@ canvas {
 
 @media (max-width: 768px) {
     .neon__ring--big {
-        box-shadow: 0 0 19px 10px rgba(211, 255, 213, 0.45), 0 0 19px 10px rgba(208, 255, 210, 0.45) inset;
+        box-shadow: 0 0 19px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
         border: 3px solid #fff;
     }
     
     .neon__ring--medium {
-        box-shadow: 0 0 19px 10px rgba(211, 255, 213, 0.45), 0 0 19px 10px rgba(208, 255, 210, 0.45) inset;
+        box-shadow: 0 0 19px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
         border: 2px solid #fff;
     }
     
     .neon__ring--small {
-        box-shadow: 0 0 19px 10px rgba(211, 255, 213, 0.45), 0 0 19px 10px rgba(208, 255, 210, 0.45) inset;
+        box-shadow: 0 0 19px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
         border: 1px solid #fff;
     }
 }
@@ -200,18 +201,24 @@ canvas {
     flex-direction: column;
 }
 /* Responsive */
-@media (max-width: 768px) {
-    .neon__name { scale: 0.7; }
+@media (max-width: 840px) {
+    .neon { scale: 1; }
+}
+@media (max-width: 730px) {
+    .neon { scale: 0.9; }
+}
+@media (max-width: 660px) {
+    .neon { scale: 0.8; }
 }
 @media (max-width: 590px) {
-    .neon__name { scale: 0.6; }
+    .neon { scale: 0.7; }
 }
 @media (max-width: 500px) {
-    .neon__name { scale: 0.5; }
+    .neon { scale: 0.6; }
 }
 @media (max-width: 420px) {
-    .neon__name {
-        scale: 0.45;
+    .neon {
+        scale: 0.5;
     }
 }
 
@@ -220,10 +227,18 @@ canvas {
     text-shadow: 
         /* 0px 0px 20px var(--threed-color),  */
         /* 0px 0px 20px var(--threed-color),  */
-        21px 0px 0px var(--threed-color), 
-        17px 0px 0px var(--threed-color), 
-        13px 0px 0px var(--threed-color), 
         6px 0px 0px var(--threed-color),
+        13px 0px 0px var(--threed-color), 
+        17px 0px 0px var(--threed-color), 
+        21px 0px 0px var(--threed-color), 
+        23px 0px 5px var(--border-back-color),
+        23px 0px 0px var(--border-back-color), 
+        21px 2px 0px var(--border-back-color), 
+        21px -2px 0px var(--border-back-color),
+        14px 2px 0px var(--border-back-color), 
+        14px -2px 0px var(--border-back-color),
+        8px 2px 0px var(--border-back-color), 
+        8px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 90px rgba(255, 255, 255, 0.6), */
@@ -236,9 +251,17 @@ canvas {
     text-shadow: 
         /* 0px 0px 20px var(--threed-color),  */
         /* 0px 0px 20px var(--threed-color),  */
-        17px 0px 0px var(--threed-color), 
-        10px 0px 0px var(--threed-color), 
         4px 0px 0px var(--threed-color),
+        10px 0px 0px var(--threed-color), 
+        17px 0px 0px var(--threed-color), 
+        19px 0px 0px var(--border-back-color), 
+        19px 0px 5px var(--border-back-color),
+        17px 2px 0px var(--border-back-color), 
+        17px -2px 0px var(--border-back-color),
+        14px 2px 0px var(--border-back-color), 
+        14px -2px 0px var(--border-back-color),
+        8px 2px 0px var(--border-back-color), 
+        8px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 80px rgba(255, 255, 255, 0.6), */
@@ -252,9 +275,14 @@ canvas {
     text-shadow: 
         /* 0px 0px 20px var(--threed-color),  */
         /* 0px 0px 20px var(--threed-color),  */
-        13px 0px 0px var(--threed-color), 
         10px 0px 0px var(--threed-color), 
         5px 0px 0px var(--threed-color),
+        12px 0px 0px var(--border-back-color), 
+        12px 0px 5px var(--border-back-color),
+        10px 2px 0px var(--border-back-color), 
+        10px -2px 0px var(--border-back-color),
+        5px 2px 0px var(--border-back-color), 
+        5px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 85px rgba(255, 255, 255, 0.6), */
@@ -269,7 +297,11 @@ canvas {
         /* 0px 0px 20px var(--threed-color),  */
         /* 0px 0px 20px var(--threed-color),  */
         3px 0px 0px var(--threed-color),
-        6px 0px 0px var(--threed-color),
+        4px 0px 0px var(--border-back-color), 
+        4px 0px 5px var(--border-back-color),
+        4px 2px 0px var(--border-back-color), 
+        3px 2px 0px var(--border-back-color), 
+        3px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 75px rgba(255, 255, 255, 0.6), */
@@ -283,8 +315,14 @@ canvas {
     text-shadow: 
         /* 0px 0px 20px var(--threed-color),  */
         /* 0px 0px 20px var(--threed-color), */
-        -10px 0px 0px var(--threed-color), 
+        -7px 0px 0px var(--threed-color), 
         -5px 0px 0px var(--threed-color),
+        -9px 0px 0px var(--border-back-color), 
+        -9px 0px 5px var(--border-back-color),
+        -7px 2px 0px var(--border-back-color), 
+        -7px -2px 0px var(--border-back-color),
+        -2px 2px 0px var(--border-back-color), 
+        -2px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 90px rgba(255, 255, 255, 0.6), */
@@ -301,6 +339,12 @@ canvas {
         -17px 0px 0px var(--threed-color), 
         -10px 0px 0px var(--threed-color), 
         -4px 0px 0px var(--threed-color),
+        -19px 0px 0px var(--border-back-color), 
+        -19px 0px 5px var(--border-back-color),
+        -17px 2px 0px var(--border-back-color), 
+        -17px -2px 0px var(--border-back-color),
+        -12px 2px 0px var(--border-back-color), 
+        -12px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 80px rgba(255, 255, 255, 0.6), */
@@ -318,6 +362,14 @@ canvas {
         -17px 0px 0px var(--threed-color), 
         -13px 0px 0px var(--threed-color), 
         -6px 0px 0px var(--threed-color),
+        -23px 0px 0px var(--border-back-color), 
+        -23px 0px 5px var(--border-back-color),
+        -21px 2px 0px var(--border-back-color), 
+        -21px -2px 0px var(--border-back-color),
+        -14px 2px 0px var(--border-back-color), 
+        -14px -2px 0px var(--border-back-color),
+        -8px 2px 0px var(--border-back-color), 
+        -8px -2px 0px var(--border-back-color),
         
         0px 0px 15px var(--border-color)
         /* 0px 0px 90px rgba(255, 255, 255, 0.6), */
