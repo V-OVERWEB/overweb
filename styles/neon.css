@@ -1,10 +1,4 @@
-.block__first {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90vh;
-    background: transparent;
-}
+
 canvas {
     top: 0;
     position: absolute;
@@ -29,10 +23,10 @@ canvas {
 }
 
 .neon__name {
-    --threed-color: #1c4105;
+    --threed-color: #1f5101;
     --border-color: #a4f282;
     --border-back-color: #88f471;
-    --color: #022d02;
+    --color: #0e2314;
     --border-width: 1px;
     /* --shadow-color: #618050; */
 
@@ -56,6 +50,64 @@ canvas {
     -webkit-text-stroke: var(--border-width) var(--border-color);
     scale: 1.1 0.7;
     font-weight: 300;
+    position: relative;
+}
+
+.neon__name span:before {
+   content: attr(data-glitch);
+   position: absolute;
+   top: 0;
+   left: -2px;
+   width: 100%;
+   color: black;
+   overflow: hidden;
+   clip: rect(0, 900px, 0, 0);
+   animation: noise-before 3s infinite linear alternate-reverse;
+}
+
+.neon__name span:after {
+   content: attr(data-glitch);
+   position: absolute;
+   top: 0;
+   left: 2px;
+   width: 100%;
+   color: black;
+   overflow: hidden;
+   clip: rect(0, 900px, 0, 0);
+   animation: noise-after 2s infinite linear alternate-reverse;
+}
+
+@keyframes noise-before {
+   0% { clip: rect(61px, 9999px, 52px, 0); }
+   2% { clip: rect(33px, 9999px, 144px, 0); }
+   4% { clip: rect(121px, 9999px, 115px, 0); }
+   6% { clip: rect(144px, 9999px, 162px, 0); }
+   8% { clip: rect(62px, 9999px, 180px, 0); }
+   10% { clip: rect(34px, 9999px, 42px, 0); }
+   12% { clip: rect(147px, 9999px, 179px, 0); }
+   14% { clip: rect(99px, 9999px, 63px, 0); }
+   16% { clip: rect(188px, 9999px, 122px, 0); }
+   18% { clip: rect(154px, 9999px, 14px, 0); }
+   20% { clip: rect(63px, 9999px, 37px, 0); }
+
+   /* ПАУЗА */
+   100% { clip: rect(63px, 9999px, 37px, 0); }
+}
+@keyframes noise-after {
+   0% { clip: rect(26px, 9999px, 33px, 0); }
+   2% { clip: rect(140px, 9999px, 198px, 0); }
+   4% { clip: rect(184px, 9999px, 89px, 0); }
+   6% { clip: rect(121px, 9999px, 6px, 0); }
+   8% { clip: rect(181px, 9999px, 99px, 0); }
+   10% { clip: rect(154px, 9999px, 133px, 0); }
+   12% { clip: rect(134px, 9999px, 169px, 0); }
+   14% { clip: rect(26px, 9999px, 187px, 0); }
+   16% { clip: rect(147px, 9999px, 137px, 0); }
+   18% { clip: rect(31px, 9999px, 52px, 0); }
+   20% { clip: rect(191px, 9999px, 109px, 0); }
+
+   /* ПАУЗА */
+   100% { clip: rect(191px, 9999px, 109px, 0); }
 }
 
 .neon__ring {
@@ -66,49 +118,74 @@ canvas {
     transform: translate(-50%, -50%);
     pointer-events: none;
     animation: pulseRing 4s infinite alternate;
-    filter: blur(1px);
+    /* filter: blur(19px); */
+    filter: opacity(0.5);
 }
 
 .neon__ring--big {
     width: 540px;
-    height: 460px;
-    border: 6px solid #fff;
-    box-shadow: 0 0 35px 30px rgb(44 159 49 / 65%),0 0 35px 30px rgb(44 159 49 / 65%) inset;
-    animation: ringRotate 24s infinite linear, ringFlicker 3s ease-in-out infinite;
+    height: 540px;
+    /* border: 6px solid #fff; */
+    /* box-shadow: 0 0 35px 30px rgb(44 159 49 / 65%),0 0 35px 30px rgb(44 159 49 / 65%) inset; */
+    animation: ringRotate 10s infinite linear, ringFlicker 3s ease-in-out infinite;
+    background:
+    conic-gradient(
+      rgba(0,255,100,0.8) 0deg 40deg,
+      transparent 40deg 80deg,
+      rgba(0,255,100,0.6) 80deg 140deg,
+      transparent 140deg 200deg,
+      rgba(0,255,100,0.8) 200deg 260deg,
+      transparent 260deg 360deg
+    ) border-box,
+    black padding-box;
+    -webkit-mask: radial-gradient(circle, transparent 69.5%, black 61%);
+    mask: radial-gradient(circle, transparent 69.5%, black 61%);
+
+    /* filter: drop-shadow(0 0 20px rgba(0,255,100,0.6)); */
 }
 
 .neon__ring--medium {
-    width: 600px;
-    height: 450px;
-    border: 4.5px solid #fff;
-    box-shadow: 0 0 35px 20px rgb(44 159 49 / 65%),0 0 35px 20px rgb(44 159 49 / 65%) inset;
-    animation: ringRotateRev 20s infinite linear, ringFlicker 3.2s ease-in-out infinite;
+    width: 430px;
+    height: 430px;
+    /* border: 1px solid #cbffcb80; */
+    /* box-shadow: 0 0 35px 20px rgb(44 159 49 / 35%),0 0 35px 20px rgb(44 159 49 / 35%) inset; */
+    animation: ringRotateRev 10s infinite linear, ringFlicker 2.2s ease-in-out infinite;
+    background: conic-gradient(
+        rgba(100,255,100,0.9) 0deg 60deg,
+        transparent 60deg 140deg,
+
+        rgba(100,255,100,0.6) 140deg 200deg,
+        transparent 200deg 260deg,
+
+        rgba(100,255,100,0.8) 260deg 320deg,
+        transparent 320deg 360deg
+    );
+    -webkit-mask: radial-gradient(circle, transparent 69.5%, black 61%);
+    mask: radial-gradient(circle, transparent 69.5%, black 61%);
 }
 
 .neon__ring--small {
-    width: 320px;
-    height: 420px;
-    border: 3px solid #fff;
-    box-shadow: 0 0 35px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
-    animation: ringRotate 18s infinite linear reverse, ringFlicker 2.8s ease-in-out infinite;
+    width: 310px;
+    height: 310px;
+    /* border: 3px solid #fff; */
+    /* box-shadow: 0 0 35px 10px rgb(44 159 49 / 35%),0 0 35px 10px rgb(44 159 49 / 35%) inset; */
+    animation: ringRotate 6s infinite linear reverse, ringFlicker 2.8s ease-in-out infinite;
+    background: conic-gradient(
+        rgba(100,255,100,0.9) 0deg 60deg,
+        transparent 60deg 140deg,
+
+        rgba(100,255,100,0.6) 140deg 200deg,
+        transparent 200deg 260deg,
+
+        rgba(100,255,100,0.8) 260deg 320deg,
+        transparent 320deg 360deg
+    );
+    -webkit-mask: radial-gradient(circle, transparent 69.5%, black 61%);
+    mask: radial-gradient(circle, transparent 69.5%, black 61%);
+
+    /* filter: drop-shadow(0 0 20px rgba(0,255,100,0.6)); */
 }
 
-@media (max-width: 768px) {
-    .neon__ring--big {
-        box-shadow: 0 0 19px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
-        border: 3px solid #fff;
-    }
-    
-    .neon__ring--medium {
-        box-shadow: 0 0 19px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
-        border: 2px solid #fff;
-    }
-    
-    .neon__ring--small {
-        box-shadow: 0 0 19px 10px rgb(44 159 49 / 65%),0 0 35px 10px rgb(44 159 49 / 65%) inset;
-        border: 1px solid #fff;
-    }
-}
 
 /* Animations */
 @keyframes ringRotate {
@@ -202,23 +279,23 @@ canvas {
 }
 /* Responsive */
 @media (max-width: 840px) {
-    .neon { scale: 1; }
-}
-@media (max-width: 730px) {
     .neon { scale: 0.9; }
 }
-@media (max-width: 660px) {
+@media (max-width: 730px) {
     .neon { scale: 0.8; }
 }
-@media (max-width: 590px) {
+@media (max-width: 660px) {
     .neon { scale: 0.7; }
 }
-@media (max-width: 500px) {
+@media (max-width: 590px) {
     .neon { scale: 0.6; }
+}
+@media (max-width: 500px) {
+    .neon { scale: 0.5; }
 }
 @media (max-width: 420px) {
     .neon {
-        scale: 0.5;
+        scale: 0.45;
     }
 }
 

@@ -4,6 +4,7 @@
     width: 100%;
     height: 100vh;
     overflow: hidden;
+    /* opacity: 0.6; */
 }
 /* Каждая колонка — вертикальный список символов */
 .column {
@@ -20,7 +21,7 @@
 .char {
     display: block;
     text-align: center;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 500;
     line-height: 1.2;
     white-space: pre;
@@ -28,16 +29,16 @@
 /* Голова (первый символ в column-reverse = нижний) — белая, непрозрачная */
 .column .char:first-child {
     color: #ffffff;
-    opacity: 1 !important;
+    /* opacity: 1 !important; */
 }
 /* Остальные символы — зелёные, с плавающей прозрачностью (задаётся в style) */
 .column .char:not(:first-child) {
-    color: #2eff8c;
+    color: #46ff2e;
    
 }
 /* Responsive */
 @media (max-width: 768px) {
     .char {
-        font-size: 14px;
+        font-size: 12px;
     }
 }
