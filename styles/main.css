@@ -39,13 +39,13 @@ body {
 }
 
 /* Глитч заголовка */
-.common-item:hover h2 {
+.common-item:hover h2, .common-item.active h2 {
     animation: glitchText 0.3s ease-in-out infinite;
     text-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41;
 }
 
 /* Мерцание текста */
-.common-item:hover p {
+.common-item:hover p, .common-item.active p {
     animation: textFlicker 0.2s ease-in-out 2;
 }
 
@@ -84,7 +84,7 @@ body {
     z-index: 2;
 }
 
-.common-item:hover .matrix-code-hover {
+.common-item:hover .matrix-code-hover, .common-item.active .matrix-code-hover {
     color: rgba(0, 255, 65, 0.5);
     animation: blinkCode 0.8s step-end infinite;
 }
@@ -101,7 +101,7 @@ body {
     z-index: 3;
 }
 
-.common-item:hover .hover-code {
+.common-item:hover .hover-code, .common-item.active .hover-code {
     color: rgba(0, 255, 65, 0.4);
     animation: codeBlink 0.5s step-end infinite;
 }
@@ -149,7 +149,7 @@ body {
     pointer-events: none;
     z-index: 1;
 }
-.common-item:hover::before {
+.common-item:hover::before, .common-item.active::before {
     top: 100%;
 }
 /* Матричный дождь */
@@ -169,12 +169,12 @@ body {
     transition: height 0.3s ease;
     z-index: 0;
 }
-.common-item:hover::after {
+.common-item:hover::after, .common-item.active::after {
     height: 100%;
     animation: matrixRainCard 0.4s linear infinite;
 }
 /* Hover эффекты */
-.common-item:hover {
+.common-item:hover, .common-item.active {
     transform: translateY(-5px);
     box-shadow: 0 0 21px rgba(0, 255, 65, 1);
     border-color: #00ffaa;
@@ -190,10 +190,10 @@ body {
     background-blend-mode: overlay;
 }
 /* Мерцание текста */
-.common-item:hover p {
+.common-item:hover p, .common-item.active p {
     animation: textFlicker 0.2s ease-in-out 2;
 }
-.common-item:hover {
+.common-item:hover, .common-item.active {
     color: rgba(0, 255, 65, 0.4);
 }
 .common-item p {
@@ -204,7 +204,7 @@ body {
     max-width: 700px
 }
 /* Четные карточки - другой глитч */
-.common-item:nth-child(even):hover h2 {
+.common-item:nth-child(even):hover h2, .common-item:nth-child(even).active h2 {
     animation: glitchTextAlt 0.25s ease-in-out infinite;
 }
 /* Анимации */
