@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getCurrentSection() {
         const sections = [
             { id: 'home', element: document.querySelector('.block__first'), offset: 100 },
+            { id: 'about', element: document.querySelector('.block__about'), offset: 100 },
             { id: 'services', element: document.querySelector('.block__second'), offset: 100 },
             { id: 'reviews', element: document.querySelector('.block__reviews'), offset: 100 },
             { id: 'contacts', element: document.querySelector('.block__contacts'), offset: 100 }
