@@ -1,5 +1,10 @@
 /* БЛОК about   ----------------------------------------------------------------------------------------------------------------- */
 
+#rain-container {
+    position: fixed;
+    top: 0;
+}
+
 .block__about {
   position: relative;
   min-height: 100vh;
